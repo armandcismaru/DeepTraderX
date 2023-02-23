@@ -107,7 +107,7 @@ class Trader:
             print(f'{output_string} profit={profit} balance={self.balance} profit/t={self.profit_per_time}')
         self.del_order(coid)  # delete the order
 
-    # pylint: disable=unused-argument,no-self-use
+    # pylint: disable=unused-argument
     def respond(self, time, lob, trade, verbose):
         """
         specify how trader responds to events in the market
@@ -120,7 +120,7 @@ class Trader:
         """
         return None
 
-    # pylint: disable=unused-argument,no-self-use
+    # pylint: disable=unused-argument
     def get_order(self, time, countdown, lob):
         """
         Get's the traders order based on the current state of the market
