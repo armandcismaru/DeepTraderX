@@ -187,7 +187,7 @@ def populate_market(trader_spec, traders, shuffle, verbose):
     return {'n_buyers': n_buyers, 'n_sellers': n_sellers}
 
 
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments,too-many-locals,too-many-branches
 def run_exchange(
         exchange,
         order_q,
@@ -197,7 +197,8 @@ def run_exchange(
         start_time,
         sess_length,
         virtual_end,
-        process_verbose):
+        process_verbose,
+        lobframes):
     """
     Function for running of the exchange.
     :param exchange: Exchange object
@@ -228,13 +229,14 @@ def run_exchange(
         else:
             completed_coid[order.coid] = False
 
-        (trade, lob) = exchange.process_order2(virtual_time, order, process_verbose)
+        (trade, lob) = exchange.process_order2(virtual_time, order, process_verbose, None)
 
         if trade is not None:
             completed_coid[order.coid] = True
             completed_coid[trade['counter']] = True
             for q in trader_qs:
                 q.put([trade, order, lob])
+            _ = exchange.publish_lob(virtual_time, lobframes, False)
     return 0
 
 
@@ -283,7 +285,7 @@ def run_trader(
             trader.times[1] += time2 - time1
             trader.times[3] += 1
 
-        lob = exchange.publish_lob(virtual_time, False)
+        lob = exchange.publish_lob(virtual_time, None, False)
         time1 = time.time()
         trader.respond(virtual_time, lob, trade, respond_verbose)
         time2 = time.time()
@@ -305,7 +307,7 @@ def run_trader(
 
 
 # one session in the market
-# pylint: disable=too-many-arguments,too-many-locals
+# pylint: disable=too-many-arguments,too-many-locals,consider-using-with
 def market_session(
         sess_id,
         sess_length,
@@ -336,6 +338,9 @@ def market_session(
     process_verbose = False
     respond_verbose = False
     bookkeep_verbose = False
+
+    lobframes = open(sess_id + '_LOB_frames.csv', 'w', encoding="utf-8")
+
     # create a bunch of traders
     traders = {}
     trader_threads = []
@@ -368,7 +373,8 @@ def market_session(
             start_time,
             sess_length,
             virtual_end,
-            process_verbose,))
+            process_verbose,
+            lobframes))
 
     # start exchange thread
     ex_thread.start()
@@ -413,6 +419,10 @@ def market_session(
     # close trader threads
     for thread in trader_threads:
         thread.join()
+
+    # close lobframes
+    if lobframes is not None:
+        lobframes.close()
 
     # end of an experiment -- dump the tape
     exchange.tape_dump('transactions.csv', 'a', 'keep')
@@ -628,7 +638,7 @@ if __name__ == "__main__":
                 dump_all = True
 
             while trial < (config.numTrials + 1):
-                trial_id = f'trial{str(trial).zfill(7)}'
+                trial_id = f'trial{str(trial).zfill(4)}'
                 start_session_event = threading.Event()
                 try:
                     NUM_THREADS = market_session(
@@ -726,7 +736,7 @@ if __name__ == "__main__":
 
                     trial = 1
                     while trial <= config.numTrialsPerSchedule:
-                        trial_id = f'trial{str(trial_number).zfill(7)}'
+                        trial_id = f'trial{str(trial_number).zfill(4)}'
                         start_session_event = threading.Event()
                         try:
                             NUM_THREADS = market_session(trial_id,

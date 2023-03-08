@@ -326,7 +326,7 @@ class Exchange(Orderbook):
 
     # this returns the LOB data "published" by the exchange,
     # i.e., what is accessible to the traders
-    def publish_lob(self, time, verbose):
+    def publish_lob(self, time, lob_file, verbose):
         public_data = {}
         public_data['t'] = time
         public_data['bids'] = {'best': self.bids.best_price,

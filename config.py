@@ -2,7 +2,7 @@
 # pylint: skip-file
 
 # General
-sessionLength = 100  # Length of session in seconds.
+sessionLength = 10  # Length of session in seconds.
 virtualSessionLength = 600  # Number of virtual timesteps per sessionLength.
 verbose = False  # Adds additional output for debugging.
 

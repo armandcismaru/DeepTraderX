@@ -1,4 +1,4 @@
-/transactions.csv
+*.csv
 .vscode/
 .idea/
 .DS_STORE

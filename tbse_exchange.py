@@ -154,6 +154,7 @@ class Orderbook:
         self.asks = OrderbookHalf('Ask', TBSE_SYS_MAX_PRICE)
         self.tape = []
         self.quote_id = 0  # unique ID code for each quote accepted onto the book
+        self.lob_string = '' # string representation of the limit order book
 
     def get_quote_id(self):
         """
@@ -231,7 +232,8 @@ class Exchange(Orderbook):
             # neither bid nor ask?
             sys.exit('bad order type in del_quote()')
 
-    def publish_lob(self, time, verbose):
+    # pylint: disable=consider-using-f-string
+    def publish_lob(self, time, lob_file, verbose):
         """
         this returns the LOB data "published" by the exchange, i.e., what is accessible to the traders
         :param time: Current t
@@ -257,6 +259,37 @@ class Exchange(Orderbook):
             'QID': self.quote_id,
             'tape': self.tape
         }
+
+        if lob_file is not None:
+            # build a linear character-string summary of only those prices on LOB with nonzero quantities
+            lobstring ='Bid:,'
+            n_bids = len(self.bids.lob_anon)
+            if n_bids > 0:
+                lobstring += '%d,' % n_bids
+                for lobitem in self.bids.lob_anon:
+                    price_str = '%d,' % lobitem[0]
+                    qty_str = '%d,' % lobitem[1]
+                    lobstring = lobstring + price_str + qty_str
+            else:
+                lobstring += '0,'
+            lobstring += 'Ask:,'
+            n_asks = len(self.asks.lob_anon)
+            if n_asks > 0:
+                lobstring += '%d,' % n_asks
+                for lobitem in self.asks.lob_anon:
+                    price_str = '%d,' % lobitem[0]
+                    qty_str = '%d,' % lobitem[1]
+                    lobstring = lobstring + price_str + qty_str
+            else:
+                lobstring += '0,'
+            # is this different to the last lob_string?
+            if lobstring != self.lob_string:
+                # write it
+                lob_file.write('%.3f, %s\n' % (time, lobstring))
+                lob_file.write('%s\n' % "------------------")
+                # remember it
+                self.lob_string = lobstring
+
         if verbose:
             print(f'publish_lob: t={time}')
             print(f'BID_lob={public_data["bids"]["lob"]}')
@@ -264,8 +297,9 @@ class Exchange(Orderbook):
 
         return public_data
 
+    # publish lob here
     # pylint: disable=too-many-locals,too-many-branches
-    def process_order2(self, time, order, verbose):
+    def process_order2(self, time, order, verbose, lobframes):
         """
         receive an order and either add it to the relevant LOB (ie treat as limit order)
         or if it crosses the best counterparty offer, execute it (treat as a market order)
@@ -325,7 +359,7 @@ class Exchange(Orderbook):
         if verbose:
             print(f'counterparty {counterparty}')
 
-        lob = self.publish_lob(time, False)
+        lob = self.publish_lob(time, lobframes, False)
         if counterparty is not None:
             # process the trade
             if verbose:
