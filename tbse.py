@@ -72,11 +72,15 @@ def trade_stats(expid, traders, dumpfile):
         t_time1 = 0
         t_time2 = 0
         if trader_type in trader_types:
-            t_balance = trader_types[trader_type]['balance_sum'] + traders[t].balance
-            t_trades = trader_types[trader_type]['trades_sum'] + traders[t].n_trades
+            t_balance = trader_types[trader_type]['balance_sum'] + \
+                traders[t].balance
+            t_trades = trader_types[trader_type]['trades_sum'] + \
+                traders[t].n_trades
             if traders[t].last_quote is not None:
-                t_time1 = trader_types[trader_type]['time1'] + traders[t].times[0] / traders[t].times[2]
-                t_time2 = trader_types[trader_type]['time2'] + traders[t].times[1] / traders[t].times[3]
+                t_time1 = trader_types[trader_type]['time1'] + \
+                    traders[t].times[0] / traders[t].times[2]
+                t_time2 = trader_types[trader_type]['time2'] + \
+                    traders[t].times[1] / traders[t].times[3]
             n = trader_types[trader_type]['n'] + 1
         else:
             t_balance = traders[t].balance
@@ -229,7 +233,8 @@ def run_exchange(
         else:
             completed_coid[order.coid] = False
 
-        (trade, lob) = exchange.process_order2(virtual_time, order, process_verbose, None)
+        (trade, lob) = exchange.process_order2(
+            virtual_time, order, process_verbose, None)
 
         if trade is not None:
             completed_coid[order.coid] = True
@@ -441,32 +446,40 @@ def get_order_schedule():
     Produces order schedule as defined in config file.
     :return: Order schedule representing the supply/demand curve of the market
     """
-    range_max = random.randint(config.supply['rangeMax']['rangeLow'], config.supply['rangeMax']['rangeHigh'])
-    range_min = random.randint(config.supply['rangeMin']['rangeLow'], config.supply['rangeMin']['rangeHigh'])
+    range_max = random.randint(
+        config.supply['rangeMax']['rangeLow'], config.supply['rangeMax']['rangeHigh'])
+    range_min = random.randint(
+        config.supply['rangeMin']['rangeLow'], config.supply['rangeMin']['rangeHigh'])
 
     if config.useInputFile:
         offset_function_event_list = get_offset_event_list()
-        range_s = (range_min, range_max, [real_world_schedule_offset_function, [offset_function_event_list]])
+        range_s = (range_min, range_max, [
+                   real_world_schedule_offset_function, [offset_function_event_list]])
     elif config.useOffset:
         range_s = (range_min, range_max, schedule_offset_function)
     else:
         range_s = (range_min, range_max)
 
-    supply_schedule = [{'from': 0, 'to': config.virtualSessionLength, 'ranges': [range_s], 'stepmode': config.stepmode}]
+    supply_schedule = [{'from': 0, 'to': config.virtualSessionLength, 'ranges': [
+        range_s], 'stepmode': config.stepmode}]
 
     if not config.symmetric:
-        range_max = random.randint(config.demand['rangeMax']['rangeLow'], config.demand['rangeMax']['rangeHigh'])
-        range_min = random.randint(config.demand['rangeMin']['rangeLow'], config.demand['rangeMin']['rangeHigh'])
+        range_max = random.randint(
+            config.demand['rangeMax']['rangeLow'], config.demand['rangeMax']['rangeHigh'])
+        range_min = random.randint(
+            config.demand['rangeMin']['rangeLow'], config.demand['rangeMin']['rangeHigh'])
 
     if config.useInputFile:
         offset_function_event_list = get_offset_event_list()
-        range_d = (range_min, range_max, [real_world_schedule_offset_function, [offset_function_event_list]])
+        range_d = (range_min, range_max, [
+                   real_world_schedule_offset_function, [offset_function_event_list]])
     elif config.useOffset:
         range_d = (range_min, range_max, schedule_offset_function)
     else:
         range_d = (range_min, range_max)
 
-    demand_schedule = [{'from': 0, 'to': config.virtualSessionLength, 'ranges': [range_d], 'stepmode': config.stepmode}]
+    demand_schedule = [{'from': 0, 'to': config.virtualSessionLength, 'ranges': [
+        range_d], 'stepmode': config.stepmode}]
 
     return {'sup': supply_schedule, 'dem': demand_schedule,
             'interval': config.interval, 'timemode': config.timemode}
@@ -508,6 +521,8 @@ def real_world_schedule_offset_function(t, params):
     return offset
 
 # pylint: disable:too-many-locals
+
+
 def get_offset_event_list():
     """
     read in a real-world-data data-file for the SDS offset function
@@ -702,7 +717,8 @@ if __name__ == "__main__":
                       "this trader schedule.")
                 continue
             except Exception as e:  # pylint: disable=broad-except
-                print("ERROR: Unknown input error. Skipping this trader schedule." + str(e))
+                print(
+                    "ERROR: Unknown input error. Skipping this trader schedule." + str(e))
                 continue
             # pylint: disable=too-many-boolean-expressions
             if NUM_ZIC < 0 or NUM_ZIP < 0 or NUM_GDX < 0 or NUM_AA < 0 or NUM_GVWY < 0 or NUM_SHVR < 0:
@@ -723,7 +739,8 @@ if __name__ == "__main__":
                                    ('GVWY', NUM_GVWY), ('SHVR', NUM_SHVR)]
 
                     sellers_spec = buyers_spec
-                    traders_spec = {'sellers': sellers_spec, 'buyers': buyers_spec}
+                    traders_spec = {'sellers': sellers_spec,
+                                    'buyers': buyers_spec}
 
                     trader_count = 0
                     for ttype in buyers_spec:
@@ -732,7 +749,8 @@ if __name__ == "__main__":
                         trader_count += ttype[1]
 
                     if trader_count > 40:
-                        print("WARNING: Too many traders can cause unstable behaviour.")
+                        print(
+                            "WARNING: Too many traders can cause unstable behaviour.")
 
                     trial = 1
                     while trial <= config.numTrialsPerSchedule:

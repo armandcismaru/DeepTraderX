@@ -1,20 +1,16 @@
 
-import csv
+from NeuralNetwork import NeuralNetwork
+import data_visualizer
+import data_handler
+from keras.optimizers import Adam
+from keras.layers import Dense
+from keras.layers import LSTM
+from keras.models import Sequential
+import tensorflow as tf
+import numpy as np
 import sys
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-import numpy as np
-import tensorflow as tf
-from keras.models import Sequential
-from keras.layers import LSTM
-from keras.layers import Dropout
-from keras.layers import Dense
-from keras.optimizers import Adam
-from keras.optimizers import SGD
-from keras.regularizers import l2
-import data_handler
-import data_visualizer
-from NeuralNetwork import NeuralNetwork
 
 # Univariate LSTM used to predict a single next step in time series data
 class Vanilla_LSTM(NeuralNetwork):
@@ -33,9 +29,9 @@ class Vanilla_LSTM(NeuralNetwork):
     def test(self, X, y, verbose):
         preds = np.array([])
         baseline = np.array([])
-        
+
         for i in range(len(X)):
-            input = X[i].reshape((1,self.steps,1))
+            input = X[i].reshape((1, self.steps, 1))
             yhat = self.model.predict(input, verbose=verbose)
             preds = np.append(preds, yhat[0][0])
             baseline = np.append(baseline, np.mean(input[0]))
@@ -43,31 +39,32 @@ class Vanilla_LSTM(NeuralNetwork):
 
         # print(len(y), len(preds), len(baseline))
         data_visualizer.accuracy_plot(y, preds, baseline)
-        
+
     def run_all(self):
-       
-        time=data_handler.read_data("./Data/lob_data.csv", "TIME")
-        prices=data_handler.read_data("./Data/lob_data.csv", "MIC")
-        X, y=data_handler.split_data(prices, self.steps)
 
-        split_ratio=[9, 1]
-        train_X, test_X=data_handler.split_train_test_data(X, split_ratio)
-        train_X=train_X.reshape((-1, self.steps, 1))
-        test_X=test_X.reshape((-1, self.steps, 1))
-        train_y, test_y=data_handler.split_train_test_data(y, split_ratio)
+        time = data_handler.read_data("./Data/lob_data.csv", "TIME")
+        prices = data_handler.read_data("./Data/lob_data.csv", "MIC")
+        X, y = data_handler.split_data(prices, self.steps)
 
-        self.train(train_X, train_y, 200, verbose = 1)
-        self.test(test_X, test_y, verbose = 1)
+        split_ratio = [9, 1]
+        train_X, test_X = data_handler.split_train_test_data(X, split_ratio)
+        train_X = train_X.reshape((-1, self.steps, 1))
+        test_X = test_X.reshape((-1, self.steps, 1))
+        train_y, test_y = data_handler.split_train_test_data(y, split_ratio)
+
+        self.train(train_X, train_y, 200, verbose=1)
+        self.test(test_X, test_y, verbose=1)
         self.save()
 
     def run_all2(self):
-        
+
         for i in range(9):
             print("epoch " + str(i+1) + " out of 9")
-            prices = data_handler.read_data("./Data/lob_datatrial000" + str(i+1) + ".csv", "MIC")
+            prices = data_handler.read_data(
+                "./Data/lob_datatrial000" + str(i+1) + ".csv", "MIC")
             X, y = data_handler.split_data(prices, self.steps)
             self.train(X, y, 100, 0)
-        
+
         time = data_handler.read_data("./Data/lob_data.csv", "TIME")
         prices = data_handler.read_data("./Data/lob_data.csv", "MIC")
         X, y = data_handler.split_data(prices, self.steps)
@@ -101,17 +98,18 @@ class MultiVanilla_LSTM(NeuralNetwork):
             preds = np.append(preds, yhat[0][self.out_steps - 1])
             # baseline = np.append(baseline, np.mean(input[0]))
             actual = np.append(actual, y[i][self.out_steps - 1])
-            
+
             print(actual[i], preds[i])
 
         # print(len(y), len(preds), len(baseline))
         data_visualizer.accuracy_plot(actual, preds)
 
     def run_all(self):
-    
+
         time = data_handler.read_data("./Data/lob_datatrial0001.csv", "TIME")
         prices = data_handler.read_data("./Data/lob_datatrial0001.csv", "MIC")
-        X, y = data_handler.multi_split_data(prices, self.steps, self.out_steps)
+        X, y = data_handler.multi_split_data(
+            prices, self.steps, self.out_steps)
 
         split_ratio = [9, 1]
         train_X, test_X = data_handler.split_train_test_data(X, split_ratio)
@@ -124,9 +122,10 @@ class MultiVanilla_LSTM(NeuralNetwork):
         self.test(test_X, test_y, verbose=1)
         self.save()
 
+
 class Multivariate_LSTM(NeuralNetwork):
-    def __init__(self,  input_shape, filename):
-        
+    def __init__(self, input_shape, filename):
+
         # setup
         self.input_shape = input_shape
         self.model = Sequential()
@@ -134,12 +133,13 @@ class Multivariate_LSTM(NeuralNetwork):
         self.n_features = self.input_shape[2]
         self.filename = filename
         self.batch_size = input_shape[0]
-        
+
         # self.max_vals = np.array([])
         # self.min_vals = np.array([])
 
         # architecture
-        self.model.add(LSTM(10, activation='relu',  input_shape=(input_shape[1], input_shape[2])))
+        self.model.add(LSTM(10, activation='relu',
+                            input_shape=(input_shape[1], input_shape[2])))
         self.model.add(Dense(5, activation='relu'))
         self.model.add(Dense(3, activation='relu'))
         # self.model.add(Dense(3))
@@ -148,16 +148,17 @@ class Multivariate_LSTM(NeuralNetwork):
 
         # compiling + options
         opt = Adam(learning_rate=1.5e-5)
-        self.model.compile(optimizer=opt, metrics=['mae','msle','mse'], loss='mse')
-        
-        
+        self.model.compile(optimizer=opt, metrics=[
+                           'mae', 'msle', 'mse'], loss='mse')
+
     def create_model(self):
         pkl_path = "./normalized_data.pkl"
         train_data = data_handler.DataGenerator(
             pkl_path, self.batch_size, self.n_features)
+    
         self.max_vals = train_data.train_max
         self.min_vals = train_data.train_min
-        self.model.fit_generator(
+        self.model.fit(
             train_data, epochs=20, verbose=1, workers=16)
         self.save()
         tf.keras.utils.plot_model(
@@ -187,14 +188,9 @@ if __name__ == '__main__':
     # mul.run_all()
 
     # multivariate LSTM
-    batch_size = 16384
+    batch_size = 1638
     no_features = 13
     no_steps = 1
-    mv = Multivariate_LSTM( (batch_size, no_steps, no_features), f"DeepTrader1_6")
+    mv = Multivariate_LSTM(
+        (batch_size, no_steps, no_features), f"DeepTrader1_6_test")
     mv.create_model()
-
-
-
-
-    
-    
