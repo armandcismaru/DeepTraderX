@@ -1,3 +1,4 @@
+# pylint: skip-file
 import numpy as np
 from sklearn.preprocessing import normalize
 from itertools import combinations, permutations, product, groupby

@@ -1,6 +1,6 @@
 [FORMAT]
 max-line-length=120
-good-names=i,j,k,ex,r,c,_,pk,x,y,a,b,c,d,e,f,g,h,l,m,n,o,p,q,s,t,u,v,w,z,TBSE,t1,t2,bs,ss,ca,cr,eq
+good-names=i,j,k,ex,r,c,_,pk,x,y,a,b,c,d,e,f,g,h,l,m,n,o,p,q,s,t,u,v,w,z,TBSE,t1,t2,bs,ss,ca,cr,eq,NeuralNetwork
 
 ; [MAIN]
 ; load-plugins=pylint.extensions.no_self_use,

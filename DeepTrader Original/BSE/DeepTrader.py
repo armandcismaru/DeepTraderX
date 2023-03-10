@@ -1,3 +1,4 @@
+# pylint: skip-file
 from DeepBSE import Trader, Order
 import NeuralNetwork as nn
 import numpy as np

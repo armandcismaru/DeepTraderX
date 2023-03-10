@@ -1,3 +1,4 @@
+# pylint: skip-file
 import csv
 import numpy as np
 import pickle

@@ -1,3 +1,4 @@
+# pylint: skip-file
 import numpy as np
 import os
 from keras.models import model_from_json

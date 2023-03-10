@@ -1,4 +1,4 @@
-
+# pylint: skip-file
 from NeuralNetwork import NeuralNetwork
 import data_visualizer
 import data_handler

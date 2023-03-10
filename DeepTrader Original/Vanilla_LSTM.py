@@ -1,3 +1,4 @@
+# pylint: skip-file
 import csv
 import sys
 import os
