@@ -65,6 +65,7 @@ class DataGenerator(Sequence):
 
                 except EOFError:
                     break  # no more data in the file
+            return None
 
     def __len__(self):
         return self.no_items // self.batch_size
