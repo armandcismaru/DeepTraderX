@@ -52,11 +52,11 @@ import threading
 import time
 from datetime import datetime
 
-import config
-from tbse_customer_orders import customer_orders
 from tbse_exchange import Exchange
+from tbse_customer_orders import customer_orders
 from tbse_trader_agents import TraderGiveaway, TraderShaver, TraderSniper, \
     TraderZic, TraderZip, TraderAa, TraderGdx
+import config
 
 
 # Adapted from original BSE code
