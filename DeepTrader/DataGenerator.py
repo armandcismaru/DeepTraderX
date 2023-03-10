@@ -40,9 +40,7 @@ class DataGenerator(Sequence):
         y = np.empty((self.batch_size, 1))
 
         with open(self.dataset_path, "rb") as f:
-            count = 0
-            number = 0
-            i = 0
+            count, number, i = 0, 0, 0
             while 1:
                 try:
                     number = len(pickle.load(f)) + count
