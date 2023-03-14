@@ -4,7 +4,7 @@ Module containing classes for describing a simulated exchange
 Minor adaptions from the original BSE code by Dave Cliff
 """
 import sys
-
+import numpy as np
 from tbse_sys_consts import TBSE_SYS_MIN_PRICE, TBSE_SYS_MAX_PRICE
 
 
@@ -13,6 +13,7 @@ class OrderbookHalf:
     """
     OrderbookHalf is one side of the book: a list of bids or a list of asks, each sorted best-first
     """
+
     def __init__(self, book_type, worst_price):
         # book_type: bids or asks?
         self.book_type = book_type
@@ -40,7 +41,7 @@ class OrderbookHalf:
             self.lob_anon.append([price, qty])
 
     def build_lob(self):
-        """"
+        """ "
         take a list of orders and build a limit-order-book (lob) from it
         NB the exchange needs to know arrival times and trader-id associated with each order
         returns lob as a dictionary (i.e., unsorted)
@@ -61,12 +62,15 @@ class OrderbookHalf:
                 self.lob[price] = [qty + order.qty, order_list]
             else:
                 # create a new dictionary entry
-                self.lob[price] = [order.qty, [[order.time, order.qty, order.tid, order.toid]]]
+                self.lob[price] = [
+                    order.qty,
+                    [[order.time, order.qty, order.tid, order.toid]],
+                ]
         # create anonymized version
         self.anonymize_lob()
         # record best price and associated trader-id
         if len(self.lob) > 0:
-            if self.book_type == 'Bid':
+            if self.book_type == "Bid":
                 self.best_price = self.lob_anon[-1][0]
             else:
                 self.best_price = self.lob_anon[0][0]
@@ -93,8 +97,8 @@ class OrderbookHalf:
         self.build_lob()
 
         if n_orders != self.n_orders:
-            return 'Addition'
-        return 'Overwrite'
+            return "Addition"
+        return "Overwrite"
 
     def book_del(self, order):
         """
@@ -124,7 +128,7 @@ class OrderbookHalf:
             del self.orders[best_price_counterparty]
             self.n_orders = self.n_orders - 1
             if self.n_orders > 0:
-                if self.book_type == 'Bid':
+                if self.book_type == "Bid":
                     self.best_price = max(self.lob.keys())
                 else:
                     self.best_price = min(self.lob.keys())
@@ -150,11 +154,11 @@ class Orderbook:
     """
 
     def __init__(self):
-        self.bids = OrderbookHalf('Bid', TBSE_SYS_MIN_PRICE)
-        self.asks = OrderbookHalf('Ask', TBSE_SYS_MAX_PRICE)
+        self.bids = OrderbookHalf("Bid", TBSE_SYS_MIN_PRICE)
+        self.asks = OrderbookHalf("Ask", TBSE_SYS_MAX_PRICE)
         self.tape = []
         self.quote_id = 0  # unique ID code for each quote accepted onto the book
-        self.lob_string = '' # string representation of the limit order book
+        self.lob_string = ""  # string representation of the limit order book
 
     def get_quote_id(self):
         """
@@ -173,6 +177,7 @@ class Exchange(Orderbook):
     """
     Exchange's internal orderbook
     """
+
     def add_order(self, order, verbose):
         """
         add a quote/order to the exchange and update all internal records; return unique i.d.
@@ -184,9 +189,9 @@ class Exchange(Orderbook):
         self.increment_quote_id()
 
         if verbose:
-            print(f'QUID: order.quid={order.qid} self.quote.id={self.quote_id}')
+            print(f"QUID: order.quid={order.qid} self.quote.id={self.quote_id}")
 
-        if order.otype == 'Bid':
+        if order.otype == "Bid":
             response = self.bids.book_add(order)
             best_price = self.bids.lob_anon[-1][0]
             self.bids.best_price = best_price
@@ -205,7 +210,7 @@ class Exchange(Orderbook):
         :param order: The order to delete
         """
 
-        if order.otype == 'Bid':
+        if order.otype == "Bid":
             self.bids.book_del(order)
             if self.bids.n_orders > 0:
                 best_price = self.bids.lob_anon[-1][0]
@@ -214,10 +219,10 @@ class Exchange(Orderbook):
             else:  # this side of book is empty
                 self.bids.best_price = None
                 self.bids.best_tid = None
-            cancel_record = {'type': 'Cancel', 't': time, 'order': order}
+            cancel_record = {"type": "Cancel", "t": time, "order": order}
             self.tape.append(cancel_record)
 
-        elif order.otype == 'Ask':
+        elif order.otype == "Ask":
             self.asks.book_del(order)
             if self.asks.n_orders > 0:
                 best_price = self.asks.lob_anon[0][0]
@@ -226,14 +231,14 @@ class Exchange(Orderbook):
             else:  # this side of book is empty
                 self.asks.best_price = None
                 self.asks.best_tid = None
-            cancel_record = {'type': 'Cancel', 't': time, 'order': order}
+            cancel_record = {"type": "Cancel", "t": time, "order": order}
             self.tape.append(cancel_record)
         else:
             # neither bid nor ask?
-            sys.exit('bad order type in del_quote()')
+            sys.exit("bad order type in del_quote()")
 
-    # pylint: disable=consider-using-f-string
-    def publish_lob(self, time, lob_file, verbose):
+    # pylint: disable=consider-using-f-string,too-many-locals,too-many-branches,too-many-statements
+    def publish_lob(self, time, lob_file, verbose, data_out=False):
         """
         this returns the LOB data "published" by the exchange, i.e., what is accessible to the traders
         :param time: Current t
@@ -241,61 +246,157 @@ class Exchange(Orderbook):
         :return: JSON object representing the current state of the LOB
         """
         public_data = {
-            't': time,
-            'bids':
-                {
-                    'best': self.bids.best_price,
-                    'worst': self.bids.worst_price,
-                    'n': self.bids.n_orders,
-                    'lob': self.bids.lob_anon
-                },
-            'asks':
-                {
-                    'best': self.asks.best_price,
-                    'worst': self.asks.worst_price,
-                    'n': self.asks.n_orders,
-                    'lob': self.asks.lob_anon
-                },
-            'QID': self.quote_id,
-            'tape': self.tape
+            "t": time,
+            "bids": {
+                "best": self.bids.best_price,
+                "worst": self.bids.worst_price,
+                "n": self.bids.n_orders,
+                "lob": self.bids.lob_anon,
+            },
+            "asks": {
+                "best": self.asks.best_price,
+                "worst": self.asks.worst_price,
+                "n": self.asks.n_orders,
+                "lob": self.asks.lob_anon,
+            },
+            "QID": self.quote_id,
+            "tape": self.tape,
+            "mid_price": 0.0,
+            "micro_price": 0.0,
+            "imbalances": 0.0,
+            "spread": 0,
+            "trade_time": 0.0,
+            "dt": 0.0,
+            "trade_price": 0,
+            "smiths_alpha": 0.0,
+            "p_estimate": 0.0,
         }
+
+        if data_out is not None:
+            # Finds the most recent transaction price
+            if len(public_data["tape"]) != 0:
+                tape = reversed(public_data["tape"])
+                trades = list(filter(lambda d: d["type"] == "Trade", tape))
+                trade_prices = [t["price"] for t in trades]
+                weights = [pow(0.9, t) for t in range(len(trades))]
+                public_data["p_estimate"] = np.average(trade_prices, weights=weights)
+                public_data["smiths_alpha"] = np.sqrt(
+                    np.sum(
+                        np.square(trade_prices - public_data["p_estimate"])
+                        / len(trade_prices)
+                    )
+                )
+
+                if public_data["t"] == trades[0]["t"]:
+                    if len(trades) > 1:
+                        public_data["dt"] = trades[0]["t"] - trades[1]["t"]
+                    else:
+                        public_data["dt"] = trades[0]["t"]
+
+                    public_data["trade_time"] = public_data["t"]
+                    public_data["trade_price"] = trades[0]["price"]
+
+                    if public_data["bids"]["best"] is None:
+                        x = 0
+                    else:
+                        x = public_data["bids"]["best"]
+
+                    if public_data["asks"]["best"] is None:
+                        y = 0
+                    else:
+                        y = public_data["asks"]["best"]
+
+                    n_x = public_data["bids"]["n"]
+                    n_y = public_data["asks"]["n"]
+
+                    public_data["spread"] = abs(y - x)
+                    public_data["mid_price"] = float((x + y)) / 2
+                    if n_x + n_y != 0:
+                        public_data["micro_price"] = float(
+                            ((n_x * y) + (n_y * x))
+                        ) / float((n_x + n_y))
+                        public_data["imbalances"] = float((n_x - n_y)) / float(
+                            (n_x + n_y)
+                        )
 
         if lob_file is not None:
             # build a linear character-string summary of only those prices on LOB with nonzero quantities
-            lobstring ='Bid:,'
+            lobstring = "Bid:,"
             n_bids = len(self.bids.lob_anon)
             if n_bids > 0:
-                lobstring += '%d,' % n_bids
+                lobstring += "%d," % n_bids
                 for lobitem in self.bids.lob_anon:
-                    price_str = '%d,' % lobitem[0]
-                    qty_str = '%d,' % lobitem[1]
+                    price_str = "%d," % lobitem[0]
+                    qty_str = "%d," % lobitem[1]
                     lobstring = lobstring + price_str + qty_str
             else:
-                lobstring += '0,'
-            lobstring += 'Ask:,'
+                lobstring += "0,"
+            lobstring += "Ask:,"
             n_asks = len(self.asks.lob_anon)
             if n_asks > 0:
-                lobstring += '%d,' % n_asks
+                lobstring += "%d," % n_asks
                 for lobitem in self.asks.lob_anon:
-                    price_str = '%d,' % lobitem[0]
-                    qty_str = '%d,' % lobitem[1]
+                    price_str = "%d," % lobitem[0]
+                    qty_str = "%d," % lobitem[1]
                     lobstring = lobstring + price_str + qty_str
             else:
-                lobstring += '0,'
+                lobstring += "0,"
             # is this different to the last lob_string?
             if lobstring != self.lob_string:
                 # write it
-                lob_file.write('%.3f, %s\n' % (time, lobstring))
-                lob_file.write('%s\n' % "------------------")
+                lob_file.write("%.3f, %s\n" % (time, lobstring))
+                lob_file.write("%s\n" % "------------------")
                 # remember it
                 self.lob_string = lobstring
 
         if verbose:
-            print(f'publish_lob: t={time}')
+            print(f"publish_lob: t={time}")
             print(f'BID_lob={public_data["bids"]["lob"]}')
             print(f'ASK_lob={public_data["asks"]["lob"]}')
 
         return public_data
+
+    # pylint: disable=too-many-arguments
+    def lob_data_out(self, time, data_file, limits):
+        """
+        This function is used to write the LOB data to a file.
+        """
+
+        lob = self.publish_lob(time, None, False, data_out=True)
+        t = 0
+
+        if lob["bids"]["best"] is None:
+            x = 0
+        else:
+            x = lob["bids"]["best"]
+
+        if lob["asks"]["best"] is None:
+            y = 0
+        else:
+            y = lob["asks"]["best"]
+        if limits[0] == 0:
+            t = 1
+
+        if time == lob["trade_time"] and time != 0:
+            data_file.write(
+                "%f,%d,%d,%f,%f,%f,%d,%d,%d,%f,%d,%f,%f,%d\n"
+                % (
+                    time,
+                    t,
+                    limits[t],
+                    lob["mid_price"],
+                    lob["micro_price"],
+                    lob["imbalances"],
+                    lob["spread"],
+                    x,
+                    y,
+                    lob["dt"],
+                    (lob["asks"]["n"] + lob["bids"]["n"]),
+                    lob["smiths_alpha"],
+                    lob["p_estimate"],
+                    lob["trade_price"],
+                )
+            )
 
     # publish lob here
     # pylint: disable=too-many-locals,too-many-branches
@@ -312,17 +413,19 @@ class Exchange(Orderbook):
         o_price = order.price
         counterparty = None
         counter_coid = None
-        [toid, response] = self.add_order(order, verbose)  # add it to the order lists -- overwriting any previous order
+        [toid, response] = self.add_order(
+            order, verbose
+        )  # add it to the order lists -- overwriting any previous order
         order.toid = toid
         if verbose:
-            print(f'TOID: order.toid={order.toid}')
-            print(f'RESPONSE: {response}')
+            print(f"TOID: order.toid={order.toid}")
+            print(f"RESPONSE: {response}")
         best_ask = self.asks.best_price
         best_ask_tid = self.asks.best_tid
         best_bid = self.bids.best_price
         best_bid_tid = self.bids.best_tid
         price = 0
-        if order.otype == 'Bid':
+        if order.otype == "Bid":
             if self.asks.n_orders > 0 and best_bid >= best_ask:
                 # bid lifts the best ask
                 if verbose:
@@ -331,12 +434,12 @@ class Exchange(Orderbook):
                 counter_coid = self.asks.orders[counterparty].coid
                 price = best_ask  # bid crossed ask, so use ask price
                 if verbose:
-                    print('counterparty, price', counterparty, price)
+                    print("counterparty, price", counterparty, price)
                 # delete the ask just crossed
                 self.asks.delete_best()
                 # delete the bid that was the latest order
                 self.bids.delete_best()
-        elif order.otype == 'Ask':
+        elif order.otype == "Ask":
             if self.bids.n_orders > 0 and best_ask <= best_bid:
                 # ask hits the best bid
                 if verbose:
@@ -346,33 +449,35 @@ class Exchange(Orderbook):
                 counter_coid = self.bids.orders[counterparty].coid
                 price = best_bid  # ask crossed bid, so use bid price
                 if verbose:
-                    print('counterparty, price', counterparty, price)
+                    print("counterparty, price", counterparty, price)
                 # delete the bid just crossed, from the exchange's records
                 self.bids.delete_best()
                 # delete the ask that was the latest order, from the exchange's records
                 self.asks.delete_best()
         else:
             # we should never get here
-            sys.exit('process_order() given neither Bid nor Ask')
+            sys.exit("process_order() given neither Bid nor Ask")
         # NB at this point we have deleted the order from the exchange's records
         # but the two traders concerned still have to be notified
         if verbose:
-            print(f'counterparty {counterparty}')
+            print(f"counterparty {counterparty}")
 
         lob = self.publish_lob(time, lobframes, False)
         if counterparty is not None:
             # process the trade
             if verbose:
-                print(f'>>>>>>>>>>>>>>>>>TRADE t={time:5.2f} ${price} {counterparty} {order.tid}')
+                print(
+                    f">>>>>>>>>>>>>>>>>TRADE t={time:5.2f} ${price} {counterparty} {order.tid}"
+                )
             transaction_record = {
-                'type': 'Trade',
-                't': time,
-                'price': price,
-                'party1': counterparty,
-                'party2': order.tid,
-                'qty': order.qty,
-                'coid': order.coid,
-                'counter': counter_coid
+                "type": "Trade",
+                "t": time,
+                "price": price,
+                "party1": counterparty,
+                "party2": order.tid,
+                "qty": order.qty,
+                "coid": order.coid,
+                "counter": counter_coid,
             }
             self.tape.append(transaction_record)
             return transaction_record, lob
@@ -387,8 +492,8 @@ class Exchange(Orderbook):
         """
         with open(file_name, file_mode, encoding="utf-8") as dumpfile:
             for tape_item in self.tape:
-                if tape_item['type'] == 'Trade':
+                if tape_item["type"] == "Trade":
                     dumpfile.write(f'{tape_item["t"]}, {tape_item["price"]}\n')
             dumpfile.close()
-            if tape_mode == 'wipe':
+            if tape_mode == "wipe":
                 self.tape = []

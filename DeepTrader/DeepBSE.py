@@ -48,14 +48,11 @@ from __future__ import division
 
 # could import pylab here for graphing etc
 
-import os
 import sys
-import csv
 import math
 import random
 from itertools import combinations, permutations, product
 import numpy as np
-from keras.models import model_from_json
 from NeuralNetwork import NeuralNetwork as nn
 
 # # adds parent directory to the sys path variable to import DeepTrader
@@ -465,7 +462,7 @@ class Exchange(Orderbook):
 
     # this returns the LOB data "published" by the exchange,
     # i.e., what is accessible to the traders
-    def publish_lob(self, time, verbose, traders, data_out=False):
+    def publish_lob(self, time, verbose, data_out=False):
         public_data = {}
         public_data["time"] = time
         public_data["bids"] = {
@@ -2052,7 +2049,7 @@ def customer_orders(time, last_update, traders, trader_stats, os, pending, verbo
 
 # calculates the mid and micro price of the market after each time step
 def lob_data_out(exchange, time, data_file, traders, limits):
-    lob = exchange.publish_lob(time, False, traders, data_out=True)
+    lob = exchange.publish_lob(time, False, data_out=True)
     t = 0
 
     if lob["bids"]["best"] == None:
@@ -2276,9 +2273,9 @@ if __name__ == "__main__":
         ]
         perms = [p for i in proportions for p in set(permutations(i))]
         session_configs = [list(zip(p[0], p[1])) for p in list(product(combos, perms))]
-        print(session_configs)
+        # print(session_configs)
         # sys.exit("exit training data already collected.")
-        trials_per_config = 30
+        trials_per_config = 1
         # trial = start * (trials_per_config) * len(session_configs)
         trial = start
 

@@ -2,6 +2,7 @@
 import csv
 import numpy as np
 import pickle
+
 # from progress.bar import IncrementalBar as Bar
 from keras.utils import Sequence
 
@@ -11,7 +12,7 @@ def normalize_data2(x, max=0, min=0, train=True):
         max = np.max(x)
         min = np.min(x)
 
-    normalized = (2*(x-min/(max-min)) - 1)
+    normalized = 2 * (x - min / (max - min)) - 1
     return normalized
 
 
@@ -20,7 +21,7 @@ def normalize_data(x, max=0, min=0, train=True):
         max = np.max(x)
         min = np.min(x)
 
-    normalized = (x-min)/(max-min)
+    normalized = (x - min) / (max - min)
     return normalized
 
 
@@ -29,7 +30,7 @@ class DataGenerator(Sequence):
         self.no_items = 0
         self.files = 0
         self.dataset_path = dataset_path
-        with open(self.dataset_path, 'rb') as f:
+        with open(self.dataset_path, "rb") as f:
             while 1:
                 try:
                     # print(np.array(pickle.load(f)).astype(float))
@@ -46,8 +47,8 @@ class DataGenerator(Sequence):
         # self.dataset = np.reshape(np.array(self.dataset), (-1,self.n_features+1))
 
         # print(np.array(self.dataset).shape)
-        self.train_max = np.empty((self.n_features+1))
-        self.train_min = np.empty((self.n_features+1))
+        self.train_max = np.empty((self.n_features + 1))
+        self.train_min = np.empty((self.n_features + 1))
 
         # # normalizing data
         # # note: treating the test set the same way as the training sets
@@ -59,8 +60,9 @@ class DataGenerator(Sequence):
 
     def __getitem__(self, index):
         # Generate indexes of the batch
-        indexes = [x for x in range(
-            index*self.batch_size, (index+1)*self.batch_size)]
+        indexes = [
+            x for x in range(index * self.batch_size, (index + 1) * self.batch_size)
+        ]
 
         x = np.empty((self.batch_size, 1, self.n_features))
         y = np.empty((self.batch_size, 1))
@@ -70,30 +72,29 @@ class DataGenerator(Sequence):
         #     x[i, ] = np.reshape(item[:self.n_features], (1,-1))
         #     y[i, ] = np.reshape(item[self.n_features], (1, 1))
 
-        with open(self.dataset_path, 'rb') as f:
+        with open(self.dataset_path, "rb") as f:
             count = 0
             number = 0
             i = 0
             while 1:
                 try:
                     number = len(pickle.load(f)) + count
-                    if (number < indexes[0]):
+                    if number < indexes[0]:
                         count = number
                         break
-                    elif (len(pickle.load(f)) == 0):
+                    elif len(pickle.load(f)) == 0:
                         break
 
                     file = np.array(pickle.load(f))
                     for item in file:
                         item = item.astype(np.float)
                         if count in indexes:
-                            x[i, ] = np.reshape(
-                                item[:self.n_features], (1, -1))
-                            y[i, ] = np.reshape(item[self.n_features], (1, 1))
+                            x[i,] = np.reshape(item[: self.n_features], (1, -1))
+                            y[i,] = np.reshape(item[self.n_features], (1, 1))
 
                         count += 1
                         i += 1
-                        if (i > self.batch_size - 1):
+                        if i > self.batch_size - 1:
                             i = 0
                             # print(x)
                             return (x, y)
@@ -104,7 +105,7 @@ class DataGenerator(Sequence):
 
     def __len__(self):
         # print((self.no_items // self.batch_size))
-        return (self.no_items // self.batch_size)
+        return self.no_items // self.batch_size
 
 
 # class SlowBar(Bar):
@@ -132,6 +133,7 @@ class DataGenerator(Sequence):
 # def standardize_data(x):
 #     standardized = (x - np.mean(x)) / np.std(x)
 #     return standardized
+
 
 # obsolete functions
 def read_data(filename, d_type):
@@ -248,7 +250,7 @@ def read_all_data(filename):
             data["SPR"] = np.append(data["SPR"], float(row[6]))
             data["BID"] = np.append(data["BID"], float(row[7]))
             data["ASK"] = np.append(data["ASK"], float(row[8]))
-            data["DT"] = np.append(data["DT"],  float(row[9]))
+            data["DT"] = np.append(data["DT"], float(row[9]))
             data["TOT"] = np.append(data["TOT"], float(row[10]))
             data["ALP"] = np.append(data["ALP"], float(row[11]))
             data["TAR"] = np.append(data["TAR"], float(row[12]))
@@ -260,7 +262,6 @@ def read_all_data(filename):
 
 
 def read_data_from_multiple_files(no_files, no_features):
-
     X = np.array([[]])
     Y = np.array([])
 
@@ -279,8 +280,8 @@ def read_data_from_multiple_files(no_files, no_features):
 
 
 def normalization_values(X, Y, no_features):
-    train_max = np.array([float(0)]*(no_features + 1))
-    train_min = np.array([float(0)]*(no_features + 1))
+    train_max = np.array([float(0)] * (no_features + 1))
+    train_min = np.array([float(0)] * (no_features + 1))
 
     for c in range(no_features):
         # storing values used to scale
@@ -293,9 +294,9 @@ def normalization_values(X, Y, no_features):
 
     return train_max, train_min
 
+
 # obsolete function
 def get_data(no_files, no_features):
-
     # obtaining data
     X, Y = read_data_from_multiple_files(no_files, no_features)
     # print(X.shape, Y.shape)
@@ -318,12 +319,14 @@ def get_data(no_files, no_features):
         # normalizing each feature using the only the training data to scale
         train_X[:, c] = normalize_data(train_X[:, c])
         test_X[:, c] = normalize_data(
-            test_X[:, c], max=train_max[c], min=train_min[c], train=False)
+            test_X[:, c], max=train_max[c], min=train_min[c], train=False
+        )
         # print(np.max(train_X[:, c]), np.min(train_X[:, c]))
 
     train_Y = normalize_data(train_Y)
     test_Y = normalize_data(
-        test_Y, max=train_max[no_features], min=train_min[no_features], train=False)
+        test_Y, max=train_max[no_features], min=train_min[no_features], train=False
+    )
 
     print(train_max)
     print(train_min)
@@ -340,17 +343,16 @@ def get_data(no_files, no_features):
 
     return train_X, train_Y, test_X, test_Y, train_max, train_min
 
+
 # splitting data into input and output signal
 # n_steps is the number of steps taken until a split occurs will have to formalize this with time steps
 # for now is just for every n_steps, we have a y
 def split_data(data, n_steps):
-
     A = np.array([])
     B = np.array([])
 
     step = 0
     for d in np.nditer(data):
-
         if step == n_steps + 1:
             B = np.append(B, d)
             step = 0
@@ -368,16 +370,13 @@ def split_data(data, n_steps):
 
 
 def multi_split_data(data, x_steps, y_steps):
-
     A = np.array([])
     B = np.array([])
 
     step = 0
     add_A = True
     for d in np.nditer(data):
-
         if add_A:
-
             A = np.append(A, d)
             step += 1
 
@@ -386,7 +385,6 @@ def multi_split_data(data, x_steps, y_steps):
                 step = 0
 
         else:
-
             B = np.append(B, d)
             step += 1
 
@@ -400,9 +398,9 @@ def multi_split_data(data, x_steps, y_steps):
     B = np.reshape(B, (-1, y_steps, 1))
     return A, B
 
+
 # ratio is train first and then test
 def split_train_test_data(data, ratio):
-
     A = np.array([])
     B = np.array([])
 
@@ -431,36 +429,41 @@ def collect_time_series_results(file_no):
         no_traders = int((len(first_row) - 5) / 4)
 
         for i in range(no_traders):
-            trader = str(first_row[(i*no_traders) + 2]).strip()
+            trader = str(first_row[(i * no_traders) + 2]).strip()
             trader_data[trader] = {}
             trader_data[trader]["Balance"] = np.array([])
-            trader_data[trader]["n"] = int(
-                str(first_row[(i*no_traders) + 4]).strip())
+            trader_data[trader]["n"] = int(str(first_row[(i * no_traders) + 4]).strip())
             trader_data[trader]["PPT"] = np.array([])
 
         for row in f_data:
             # print(row)
 
             market_data["TIME"] = np.append(
-                market_data["TIME"], float(str(row[1]).strip()))
+                market_data["TIME"], float(str(row[1]).strip())
+            )
             market_data["ASK"] = np.append(
-                market_data["ASK"],   float(str(row[no_traders*4 + 2]).strip()))
+                market_data["ASK"], float(str(row[no_traders * 4 + 2]).strip())
+            )
             market_data["BID"] = np.append(
-                market_data["BID"],   float(str(row[no_traders*4 + 3]).strip()))
+                market_data["BID"], float(str(row[no_traders * 4 + 3]).strip())
+            )
 
             for i in range(no_traders):
-                trader = str(row[(i*no_traders) + 2]).strip()
+                trader = str(row[(i * no_traders) + 2]).strip()
                 trader_data[trader]["Balance"] = np.append(
-                    trader_data[trader]["Balance"], int(str(row[(i*no_traders + 3)]).strip()))
+                    trader_data[trader]["Balance"],
+                    int(str(row[(i * no_traders + 3)]).strip()),
+                )
                 trader_data[trader]["PPT"] = np.append(
-                    trader_data[trader]["PPT"], float(str(row[(i*no_traders)+5]).strip()))
+                    trader_data[trader]["PPT"],
+                    float(str(row[(i * no_traders) + 5]).strip()),
+                )
 
     return market_data, trader_data
 
 
 def get_end_results(file_no):
-
-    with open(f"./Balanced/avg_balance{(file_no):04d}.csv", 'r') as f:
+    with open(f"./Balanced/avg_balance{(file_no):04d}.csv", "r") as f:
         lines = list(csv.reader(f))
 
         no_trades = len(lines)
@@ -475,17 +478,16 @@ def get_end_results(file_no):
     no_traders = int((len(last_line) - 5) / 4)
     # print(no_traders)
     for i in range(no_traders):
-        trader = str(last_line[(i*4) + 2]).strip()
+        trader = str(last_line[(i * 4) + 2]).strip()
         # print(trader)
         trader_data[trader] = {}
         # trader_data[trader]["Balance"] =  float(str(last_line[(i*no_traders + 3)]).strip())
         # trader_data[trader]["n"] = int(str(last_line[(i*no_traders) + 4]).strip())
-        trader_data[trader] = float(str(last_line[(i*4 + 5)]).strip())
+        trader_data[trader] = float(str(last_line[(i * 4 + 5)]).strip())
 
     return trader_data
 
 
 if __name__ == "__main__":
-
     pkl_path = "./Train_Dataset2.pkl"
     train_data = DataGenerator(pkl_path)

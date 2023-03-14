@@ -10,7 +10,9 @@ import tensorflow as tf
 import numpy as np
 import sys
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
 
 # Univariate LSTM used to predict a single next step in time series data
 class Vanilla_LSTM(NeuralNetwork):
@@ -20,9 +22,9 @@ class Vanilla_LSTM(NeuralNetwork):
         self.input_shape = input_shape
         self.model = Sequential()
         self.steps = input_shape[0]
-        self.model.add(LSTM(50, activation='relu', input_shape=input_shape))
+        self.model.add(LSTM(50, activation="relu", input_shape=input_shape))
         self.model.add(Dense(1))
-        self.model.compile(optimizer='adam', metrics=['accuracy'], loss='mae')
+        self.model.compile(optimizer="adam", metrics=["accuracy"], loss="mae")
         self.n_features = self.input_shape[1]
         self.filename = filename
 
@@ -41,7 +43,6 @@ class Vanilla_LSTM(NeuralNetwork):
         data_visualizer.accuracy_plot(y, preds, baseline)
 
     def run_all(self):
-
         time = data_handler.read_data("./Data/lob_data.csv", "TIME")
         prices = data_handler.read_data("./Data/lob_data.csv", "MIC")
         X, y = data_handler.split_data(prices, self.steps)
@@ -57,11 +58,11 @@ class Vanilla_LSTM(NeuralNetwork):
         self.save()
 
     def run_all2(self):
-
         for i in range(9):
-            print("epoch " + str(i+1) + " out of 9")
+            print("epoch " + str(i + 1) + " out of 9")
             prices = data_handler.read_data(
-                "./Data/lob_datatrial000" + str(i+1) + ".csv", "MIC")
+                "./Data/lob_datatrial000" + str(i + 1) + ".csv", "MIC"
+            )
             X, y = data_handler.split_data(prices, self.steps)
             self.train(X, y, 100, 0)
 
@@ -69,6 +70,7 @@ class Vanilla_LSTM(NeuralNetwork):
         prices = data_handler.read_data("./Data/lob_data.csv", "MIC")
         X, y = data_handler.split_data(prices, self.steps)
         self.test(X, y, verbose=1)
+
 
 # Univariate LSTM that takes in multiple steps to to predict a single next step in time series data
 class MultiVanilla_LSTM(NeuralNetwork):
@@ -79,11 +81,11 @@ class MultiVanilla_LSTM(NeuralNetwork):
         self.model = Sequential()
         self.steps = input_shape[0]
         self.out_steps = out_steps
-        self.model.add(LSTM(24,  activation='relu', input_shape=input_shape))
+        self.model.add(LSTM(24, activation="relu", input_shape=input_shape))
         # self.model.add(LSTM(8,  return_sequences=True, activation='relu'))
         # self.model.add(LSTM(6, activation='relu'))
         self.model.add(Dense(self.out_steps))
-        self.model.compile(optimizer='adam', metrics=['accuracy'], loss='mae')
+        self.model.compile(optimizer="adam", metrics=["accuracy"], loss="mae")
         self.n_features = self.input_shape[1]
         self.filename = filename
 
@@ -105,11 +107,9 @@ class MultiVanilla_LSTM(NeuralNetwork):
         data_visualizer.accuracy_plot(actual, preds)
 
     def run_all(self):
-
         time = data_handler.read_data("./Data/lob_datatrial0001.csv", "TIME")
         prices = data_handler.read_data("./Data/lob_datatrial0001.csv", "MIC")
-        X, y = data_handler.multi_split_data(
-            prices, self.steps, self.out_steps)
+        X, y = data_handler.multi_split_data(prices, self.steps, self.out_steps)
 
         split_ratio = [9, 1]
         train_X, test_X = data_handler.split_train_test_data(X, split_ratio)
@@ -125,7 +125,6 @@ class MultiVanilla_LSTM(NeuralNetwork):
 
 class Multivariate_LSTM(NeuralNetwork):
     def __init__(self, input_shape, filename):
-
         # setup
         self.input_shape = input_shape
         self.model = Sequential()
@@ -138,28 +137,28 @@ class Multivariate_LSTM(NeuralNetwork):
         # self.min_vals = np.array([])
 
         # architecture
-        self.model.add(LSTM(10, activation='relu',
-                            input_shape=(input_shape[1], input_shape[2])))
-        self.model.add(Dense(5, activation='relu'))
-        self.model.add(Dense(3, activation='relu'))
+        self.model.add(
+            LSTM(10, activation="relu", input_shape=(input_shape[1], input_shape[2]))
+        )
+        self.model.add(Dense(5, activation="relu"))
+        self.model.add(Dense(3, activation="relu"))
         # self.model.add(Dense(3))
         # self.model.add(Dropout(0.5))
         self.model.add(Dense(1))
 
         # compiling + options
         opt = Adam(learning_rate=1.5e-5)
-        self.model.compile(optimizer=opt, metrics=[
-                           'mae', 'msle', 'mse'], loss='mse')
+        self.model.compile(optimizer=opt, metrics=["mae", "msle", "mse"], loss="mse")
 
     def create_model(self):
         pkl_path = "./normalized_data.pkl"
         train_data = data_handler.DataGenerator(
-            pkl_path, self.batch_size, self.n_features)
-    
+            pkl_path, self.batch_size, self.n_features
+        )
+
         self.max_vals = train_data.train_max
         self.min_vals = train_data.train_min
-        self.model.fit(
-            train_data, epochs=20, verbose=1, workers=16)
+        self.model.fit(train_data, epochs=20, verbose=1, workers=16)
         self.save()
         tf.keras.utils.plot_model(
             self.model,
@@ -172,7 +171,7 @@ class Multivariate_LSTM(NeuralNetwork):
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     np.set_printoptions(threshold=sys.maxsize)
     # print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 
@@ -191,6 +190,5 @@ if __name__ == '__main__':
     batch_size = 1638
     no_features = 13
     no_steps = 1
-    mv = Multivariate_LSTM(
-        (batch_size, no_steps, no_features), f"DeepTrader1_6_test")
+    mv = Multivariate_LSTM((batch_size, no_steps, no_features), f"DeepTrader1_6_test")
     mv.create_model()

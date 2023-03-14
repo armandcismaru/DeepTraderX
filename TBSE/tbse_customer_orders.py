@@ -23,6 +23,7 @@ def customer_orders(time, coid, traders, trader_stats, order_sched, pending, ver
     :param verbose: should verbose logging be printed to console
     :return: List containing left over pending orders, cancellations to be made and the final customer ID used
     """
+
     def sys_min_check(price):
         """
         Check if order price is below system minimum price and sets price to be minimum if it is
@@ -30,7 +31,7 @@ def customer_orders(time, coid, traders, trader_stats, order_sched, pending, ver
         :return: new order price
         """
         if price < TBSE_SYS_MIN_PRICE:
-            print('WARNING: price < bse_sys_min -- clipped')
+            print("WARNING: price < bse_sys_min -- clipped")
             price = TBSE_SYS_MIN_PRICE
         return price
 
@@ -41,7 +42,7 @@ def customer_orders(time, coid, traders, trader_stats, order_sched, pending, ver
         :return: new order price
         """
         if price > TBSE_SYS_MAX_PRICE:
-            print('WARNING: price > bse_sys_max -- clipped')
+            print("WARNING: price > bse_sys_max -- clipped")
             price = TBSE_SYS_MAX_PRICE
         return price
 
@@ -66,16 +67,22 @@ def customer_orders(time, coid, traders, trader_stats, order_sched, pending, ver
                     offset_min = offset_function(time_of_issue, offset_function_params)
                     offset_max = offset_min
                 else:
-                    sys.exit('FAIL: 3rd argument of schedule in get_order_price() should be [callable_fn [params]]')
+                    sys.exit(
+                        "FAIL: 3rd argument of schedule in get_order_price() should be [callable_fn [params]]"
+                    )
                 if len(schedule[0]) > 3:
                     # if second offset function is specfied, that applies only to the max value
                     offset_function = schedule[0][3][0]
                     offset_function_params = [schedule_end] + list(schedule[0][3][1])
                     if callable(offset_function):
                         # this function applies to max
-                        offset_max = offset_function(time_of_issue, offset_function_params)
+                        offset_max = offset_function(
+                            time_of_issue, offset_function_params
+                        )
                     else:
-                        sys.exit('FAIL: 4th argument of schedule in get_order_price() should be [callable_fn [params]]')
+                        sys.exit(
+                            "FAIL: 4th argument of schedule in get_order_price() should be [callable_fn [params]]"
+                        )
             else:
                 offset_min = 0.0
                 offset_max = 0.0
@@ -88,7 +95,9 @@ def customer_orders(time, coid, traders, trader_stats, order_sched, pending, ver
                     offset_min = offset_function(time_of_issue)
                     offset_max = offset_min
                 else:
-                    sys.exit('FAIL: 3rd argument of schedule in get_order_price() not callable')
+                    sys.exit(
+                        "FAIL: 3rd argument of schedule in get_order_price() not callable"
+                    )
                 if len(schedule[0]) > 3:
                     # if second offset function is specfied, that applies only to the max value
                     offset_function = schedule[0][3]
@@ -96,7 +105,9 @@ def customer_orders(time, coid, traders, trader_stats, order_sched, pending, ver
                         # this function applies to max
                         offset_max = offset_function(time_of_issue)
                     else:
-                        sys.exit('FAIL: 4th argument of schedule in get_order_price() not callable')
+                        sys.exit(
+                            "FAIL: 4th argument of schedule in get_order_price() not callable"
+                        )
             else:
                 offset_min = 0.0
                 offset_max = 0.0
@@ -107,11 +118,13 @@ def customer_orders(time, coid, traders, trader_stats, order_sched, pending, ver
         step_size = p_range / (n - 1)
         half_step = round(step_size / 2.0)
 
-        if stepmode == 'fixed':
+        if stepmode == "fixed":
             new_order_price = p_min + int(i * step_size)
-        elif stepmode == 'jittered':
-            new_order_price = p_min + int(i * step_size) + random.randint(-half_step, half_step)
-        elif stepmode == 'random':
+        elif stepmode == "jittered":
+            new_order_price = (
+                p_min + int(i * step_size) + random.randint(-half_step, half_step)
+            )
+        elif stepmode == "random":
             if len(schedule) > 1:
                 # more than one schedule: choose one equiprobably
                 s = random.randint(0, len(schedule) - 1)
@@ -119,7 +132,7 @@ def customer_orders(time, coid, traders, trader_stats, order_sched, pending, ver
                 p_max = sys_max_check(max(schedule[s][0], schedule[s][1]))
             new_order_price = random.randint(p_min, p_max)
         else:
-            sys.exit('ERROR: Unknown stepmode in schedule')
+            sys.exit("ERROR: Unknown stepmode in schedule")
         new_order_price = sys_min_check(sys_max_check(new_order_price))
         return new_order_price
 
@@ -136,7 +149,7 @@ def customer_orders(time, coid, traders, trader_stats, order_sched, pending, ver
         """
         interval = float(interval)
         if n_traders < 1:
-            sys.exit('FAIL: n_traders < 1 in get_issue_times()')
+            sys.exit("FAIL: n_traders < 1 in get_issue_times()")
         elif n_traders == 1:
             t_step = interval
         else:
@@ -144,18 +157,18 @@ def customer_orders(time, coid, traders, trader_stats, order_sched, pending, ver
         arr_time = 0
         order_issue_times = []
         for i in range(n_traders):
-            if stepmode == 'periodic':
+            if stepmode == "periodic":
                 arr_time = interval
-            elif stepmode == 'drip-fixed':
+            elif stepmode == "drip-fixed":
                 arr_time = i * t_step
-            elif stepmode == 'drip-jitter':
+            elif stepmode == "drip-jitter":
                 arr_time = i * t_step + t_step * random.random()
-            elif stepmode == 'drip-poisson':
+            elif stepmode == "drip-poisson":
                 # poisson requires a bit of extra work
                 inter_arrival_time = random.expovariate(n_traders / interval)
                 arr_time += inter_arrival_time
             else:
-                sys.exit('FAIL: unknown t-stepmode in get_issue_times()')
+                sys.exit("FAIL: unknown t-stepmode in get_issue_times()")
             order_issue_times.append(arr_time)
 
         # at this point, arr_time is the last arrival i
@@ -186,19 +199,21 @@ def customer_orders(time, coid, traders, trader_stats, order_sched, pending, ver
         sched_end_time = None
         got_one = False
         for schedule in order_schedule:
-            if schedule['from'] <= curr_time < schedule['to']:
+            if schedule["from"] <= curr_time < schedule["to"]:
                 # within the timezone for this schedule
-                schedrange = schedule['ranges']
-                stepmode = schedule['stepmode']
-                sched_end_time = schedule['to']
+                schedrange = schedule["ranges"]
+                stepmode = schedule["stepmode"]
+                sched_end_time = schedule["to"]
                 got_one = True
                 break  # jump out the loop -- so the first matching timezone has priority over any others
         if not got_one:
-            sys.exit(f'Fail: t={curr_time:5.2f} not within any timezone in order_schedule={order_schedule}')
+            sys.exit(
+                f"Fail: t={curr_time:5.2f} not within any timezone in order_schedule={order_schedule}"
+            )
         return schedrange, stepmode, sched_end_time
 
-    n_buyers = trader_stats['n_buyers']
-    n_sellers = trader_stats['n_sellers']
+    n_buyers = trader_stats["n_buyers"]
+    n_sellers = trader_stats["n_sellers"]
 
     shuffle_times = True
 
@@ -209,25 +224,41 @@ def customer_orders(time, coid, traders, trader_stats, order_sched, pending, ver
         new_pending = []
 
         # demand side (buyers)
-        issue_times = get_issue_times(n_buyers, order_sched['timemode'], order_sched['interval'], shuffle_times, True)
-        order_type = 'Bid'
-        (sched, mode, sched_end) = get_sched_mode(time, order_sched['dem'])
+        issue_times = get_issue_times(
+            n_buyers,
+            order_sched["timemode"],
+            order_sched["interval"],
+            shuffle_times,
+            True,
+        )
+        order_type = "Bid"
+        (sched, mode, sched_end) = get_sched_mode(time, order_sched["dem"])
         for t in range(n_buyers):
             issue_time = time + issue_times[t]
-            t_name = f'B{str(t).zfill(2)}'
-            order_price = get_order_price(t, sched, sched_end, n_buyers, mode, issue_time)
+            t_name = f"B{str(t).zfill(2)}"
+            order_price = get_order_price(
+                t, sched, sched_end, n_buyers, mode, issue_time
+            )
             order = Order(t_name, order_type, order_price, 1, issue_time, coid, -3.14)
             new_pending.append(order)
             coid += 1
 
         # supply side (sellers)
-        issue_times = get_issue_times(n_sellers, order_sched['timemode'], order_sched['interval'], shuffle_times, True)
-        order_type = 'Ask'
-        (sched, mode, sched_end) = get_sched_mode(time, order_sched['sup'])
+        issue_times = get_issue_times(
+            n_sellers,
+            order_sched["timemode"],
+            order_sched["interval"],
+            shuffle_times,
+            True,
+        )
+        order_type = "Ask"
+        (sched, mode, sched_end) = get_sched_mode(time, order_sched["sup"])
         for t in range(n_sellers):
             issue_time = time + issue_times[t]
-            t_name = f'S{str(t).zfill(2)}'
-            order_price = get_order_price(t, sched, sched_end, n_sellers, mode, issue_time)
+            t_name = f"S{str(t).zfill(2)}"
+            order_price = get_order_price(
+                t, sched, sched_end, n_sellers, mode, issue_time
+            )
             order = Order(t_name, order_type, order_price, 1, issue_time, coid, -3.14)
             new_pending.append(order)
             coid += 1
@@ -241,11 +272,11 @@ def customer_orders(time, coid, traders, trader_stats, order_sched, pending, ver
                 t_name = order.tid
                 response = traders[t_name].add_order(order, verbose)
                 if verbose:
-                    print(f'Customer order: {response} {order}')
-                if response == 'LOB_Cancel':
+                    print(f"Customer order: {response} {order}")
+                if response == "LOB_Cancel":
                     cancellations.append(t_name)
                     if verbose:
-                        print(f'Cancellations: {cancellations}')
+                        print(f"Cancellations: {cancellations}")
                 # and then don't add it to new_pending (i.e., delete it)
             else:
                 # this order stays on the pending list

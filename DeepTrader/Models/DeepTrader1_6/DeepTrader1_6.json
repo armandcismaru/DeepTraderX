@@ -1,34 +1,46 @@
 {
     "class_name": "Sequential",
     "config": {
-        "name": "sequential_1",
+        "name": "sequential",
         "layers": [
             {
-                "class_name": "LSTM",
+                "class_name": "InputLayer",
                 "config": {
-                    "name": "lstm_1",
-                    "trainable": true,
                     "batch_input_shape": [
                         null,
                         1,
                         13
                     ],
                     "dtype": "float32",
+                    "sparse": false,
+                    "ragged": false,
+                    "name": "lstm_input"
+                }
+            },
+            {
+                "class_name": "LSTM",
+                "config": {
+                    "name": "lstm",
+                    "trainable": true,
+                    "dtype": "float32",
+                    "batch_input_shape": [
+                        null,
+                        1,
+                        13
+                    ],
                     "return_sequences": false,
                     "return_state": false,
                     "go_backwards": false,
                     "stateful": false,
                     "unroll": false,
+                    "time_major": false,
                     "units": 10,
                     "activation": "relu",
                     "recurrent_activation": "sigmoid",
                     "use_bias": true,
                     "kernel_initializer": {
-                        "class_name": "VarianceScaling",
+                        "class_name": "GlorotUniform",
                         "config": {
-                            "scale": 1.0,
-                            "mode": "fan_avg",
-                            "distribution": "uniform",
                             "seed": null
                         }
                     },
@@ -59,18 +71,41 @@
             {
                 "class_name": "Dense",
                 "config": {
-                    "name": "dense_1",
+                    "name": "dense",
                     "trainable": true,
                     "dtype": "float32",
                     "units": 5,
                     "activation": "relu",
                     "use_bias": true,
                     "kernel_initializer": {
-                        "class_name": "VarianceScaling",
+                        "class_name": "GlorotUniform",
                         "config": {
-                            "scale": 1.0,
-                            "mode": "fan_avg",
-                            "distribution": "uniform",
+                            "seed": null
+                        }
+                    },
+                    "bias_initializer": {
+                        "class_name": "Zeros",
+                        "config": {}
+                    },
+                    "kernel_regularizer": null,
+                    "bias_regularizer": null,
+                    "activity_regularizer": null,
+                    "kernel_constraint": null,
+                    "bias_constraint": null
+                }
+            },
+            {
+                "class_name": "Dense",
+                "config": {
+                    "name": "dense_1",
+                    "trainable": true,
+                    "dtype": "float32",
+                    "units": 3,
+                    "activation": "relu",
+                    "use_bias": true,
+                    "kernel_initializer": {
+                        "class_name": "GlorotUniform",
+                        "config": {
                             "seed": null
                         }
                     },
@@ -91,44 +126,12 @@
                     "name": "dense_2",
                     "trainable": true,
                     "dtype": "float32",
-                    "units": 3,
-                    "activation": "relu",
-                    "use_bias": true,
-                    "kernel_initializer": {
-                        "class_name": "VarianceScaling",
-                        "config": {
-                            "scale": 1.0,
-                            "mode": "fan_avg",
-                            "distribution": "uniform",
-                            "seed": null
-                        }
-                    },
-                    "bias_initializer": {
-                        "class_name": "Zeros",
-                        "config": {}
-                    },
-                    "kernel_regularizer": null,
-                    "bias_regularizer": null,
-                    "activity_regularizer": null,
-                    "kernel_constraint": null,
-                    "bias_constraint": null
-                }
-            },
-            {
-                "class_name": "Dense",
-                "config": {
-                    "name": "dense_3",
-                    "trainable": true,
-                    "dtype": "float32",
                     "units": 1,
                     "activation": "linear",
                     "use_bias": true,
                     "kernel_initializer": {
-                        "class_name": "VarianceScaling",
+                        "class_name": "GlorotUniform",
                         "config": {
-                            "scale": 1.0,
-                            "mode": "fan_avg",
-                            "distribution": "uniform",
                             "seed": null
                         }
                     },
@@ -145,6 +148,6 @@
             }
         ]
     },
-    "keras_version": "2.3.1",
+    "keras_version": "2.11.0",
     "backend": "tensorflow"
 }
