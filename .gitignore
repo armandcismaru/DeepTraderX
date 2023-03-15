@@ -3,6 +3,7 @@
 .idea/
 .DS_STORE
 *.pkl
+data
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

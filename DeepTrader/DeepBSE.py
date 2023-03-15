@@ -1355,6 +1355,7 @@ class DeepTrader(Trader):
 
             # creating the input for the network
             x = self.create_input(lob)
+            # print(x)
             normalized_input = (x - self.min_vals[: self.n_features]) / (
                 self.max_vals[: self.n_features] - self.min_vals[: self.n_features]
             )
@@ -1362,11 +1363,13 @@ class DeepTrader(Trader):
 
             # dealing witht the networks output
             normalized_output = self.model.predict(normalized_input)[0][0]
+            # print("normalized output: ", normalized_output)
             denormalized_output = (
                 (normalized_output)
                 * (self.max_vals[self.n_features] - self.min_vals[self.n_features])
             ) + self.min_vals[self.n_features]
             model_price = int(round(denormalized_output, 0))
+            # print("model price: ", model_price, "limit", limit)
 
             if otype == "Ask":
                 if model_price < limit:
@@ -2157,7 +2160,7 @@ def market_session(
         # get a limit-order quote (or None) from a randomly chosen trader
         tid = list(traders.keys())[random.randint(0, len(traders) - 1)]
         order = traders[tid].getorder(
-            time, time_left, exchange.publish_lob(time, lob_verbose, traders)
+            time, time_left, exchange.publish_lob(time, lob_verbose)
         )
 
         # if verbose: print('Trader Quote: %s' % (order))
@@ -2186,13 +2189,13 @@ def market_session(
                         traders,
                         tdump,
                         time,
-                        exchange.publish_lob(time, lob_verbose, traders),
+                        exchange.publish_lob(time, lob_verbose),
                     )
                 if lob_out:
                     lob_data_out(exchange, time, data_file, traders, limits)
 
             # traders respond to whatever happened
-            lob = exchange.publish_lob(time, lob_verbose, traders)
+            lob = exchange.publish_lob(time, lob_verbose)
             for t in traders:
                 # NB respond just updates trader's internal variables
                 # doesn't alter the LOB, so processing each trader in

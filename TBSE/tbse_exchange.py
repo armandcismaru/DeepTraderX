@@ -51,7 +51,6 @@ class OrderbookHalf:
         self.lob = {}
 
         for tid in list(self.orders):
-            # 	order = orders_cp.get(tid)
             order = self.orders.get(tid)
             price = order.price
             if price in self.lob:
@@ -272,7 +271,7 @@ class Exchange(Orderbook):
             "p_estimate": 0.0,
         }
 
-        if data_out is not None:
+        if data_out:
             # Finds the most recent transaction price
             if len(public_data["tape"]) != 0:
                 tape = reversed(public_data["tape"])
@@ -397,6 +396,38 @@ class Exchange(Orderbook):
                     lob["trade_price"],
                 )
             )
+
+    def trade_stats(self, expid, traders, dumpfile, time, lob):
+        """
+        This function is used to write the trade stats to a file.
+        """
+
+        trader_types = {}
+        for t in traders:
+            ttype = traders[t].ttype
+            if ttype in trader_types:
+                t_balance = trader_types[ttype]["balance_sum"] + traders[t].balance
+                n = trader_types[ttype]["n"] + 1
+            else:
+                t_balance = traders[t].balance
+                n = 1
+            trader_types[ttype] = {"n": n, "balance_sum": t_balance}
+
+        dumpfile.write("%s, %f, " % (expid, time))
+        for ttype in sorted(list(trader_types.keys())):
+            n = trader_types[ttype]["n"]
+            s = trader_types[ttype]["balance_sum"]
+            dumpfile.write("%s, %d, %d, %f, " % (ttype, s, n, s / float(n)))
+
+        if lob["bids"]["best"] is not None:
+            dumpfile.write("%d, " % (lob["bids"]["best"]))
+        else:
+            dumpfile.write("NaN, ")
+        if lob["asks"]["best"] is not None:
+            dumpfile.write("%d, " % (lob["asks"]["best"]))
+        else:
+            dumpfile.write("NaN, ")
+        dumpfile.write("\n")
 
     # publish lob here
     # pylint: disable=too-many-locals,too-many-branches

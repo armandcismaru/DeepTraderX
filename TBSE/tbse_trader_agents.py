@@ -1,11 +1,13 @@
 """Module containing all trader algos"""
-# pylint: disable=too-many-lines
+# pylint: disable=too-many-lines, duplicate-code
 import math
 import random
 import sys
 
+import numpy as np
 from tbse_msg_classes import Order
 from tbse_sys_consts import TBSE_SYS_MAX_PRICE, TBSE_SYS_MIN_PRICE
+from neural_network import NeuralNetwork as nn
 
 
 # pylint: disable=too-many-instance-attributes
@@ -142,6 +144,157 @@ class Trader:
         :return: The order
         """
         return None
+
+
+# pylint: disable=invalid-name,too-many-instance-attributes,no-member
+class DeepTrader(Trader):
+    """Class for the DeepTrader."""
+
+    # pylint: disable=too-many-function-args,too-many-arguments
+    def __init__(self, ttype, tid, balance, time, filename):
+        """Initialize the trader."""
+
+        Trader.__init__(self, ttype, tid, balance, time)
+        self.filename = filename  # location of the model
+        self.model = nn.load_network(self.filename)  # load the model
+        self.n_features = 13  # number of features
+        self.limit = None  # limit price
+        self.otype = None  # order type
+        self.max_vals, self.min_vals = nn.normalization_values(self.filename)
+        self.count = [0, 0]  # count of the number of times the model has been used
+
+    # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+    def create_input(self, lob):
+        """Create the input for the model."""
+
+        time = lob["t"]
+        bids = lob["bids"]
+        asks = lob["asks"]
+        tape = lob["tape"]
+        val = 0
+
+        if self.otype == "Ask":
+            val = 1
+
+        mid_price = 0
+        micro_price = 0
+        imbalances = 0
+        spread = 0
+        delta_t = 0
+        p_estimate = 0
+        smiths_alpha = 0
+
+        if len(tape) != 0:
+            if len(tape) != 1:
+                tape = reversed(tape)
+            trades = list(filter(lambda d: d["type"] == "Trade", tape))
+            trade_prices = [t["price"] for t in trades]
+
+            if len(trades) != 0:
+                weights = [pow(0.9, t) for t in range(len(trades))]
+                p_estimate = np.average(trade_prices, weights=weights)
+                smiths_alpha = np.sqrt(
+                    np.sum(np.square(trade_prices - p_estimate) / len(trade_prices))
+                )
+
+                if time == trades[0]["t"]:
+                    trade_prices = trade_prices[1:]
+                    if len(trades) == 1:
+                        delta_t = trades[0]["t"] - 0
+                    else:
+                        delta_t = trades[0]["t"] - trades[1]["t"]
+        else:
+            delta_t = time
+
+        if bids["best"] is None:
+            x = 0
+        else:
+            x = bids["best"]
+
+        if asks["best"] is None:
+            y = 0
+        else:
+            y = asks["best"]
+
+        n_x = bids["n"]
+        n_y = asks["n"]
+        total = n_x + n_y
+
+        spread = abs(y - x)
+        mid_price = (x + y) / 2
+        if n_x + n_y != 0:
+            micro_price = ((n_x * y) + (n_y * x)) / (n_x + n_y)
+            imbalances = (n_x - n_y) / (n_x + n_y)
+
+        market_conditions = np.array(
+            [
+                time,
+                val,
+                self.limit,
+                mid_price,
+                micro_price,
+                imbalances,
+                spread,
+                x,
+                y,
+                delta_t,
+                total,
+                smiths_alpha,
+                p_estimate,
+            ]
+        )
+
+        return market_conditions
+
+    def get_order(self, time, countdown, lob):
+        """Implementation of the getorder from Trader superclass in BSE."""
+
+        if len(self.orders) < 1:
+            order = None
+        else:
+            coid = max(self.orders.keys())
+
+            self.otype = self.orders[coid].otype
+            self.limit = self.orders[coid].price
+
+            # creating the input for the network
+            x = self.create_input(lob)
+            # print(x)
+
+            normalized_input = (x - self.min_vals[: self.n_features]) / (
+                self.max_vals[: self.n_features] - self.min_vals[: self.n_features]
+            )
+            normalized_input = np.reshape(normalized_input, (1, 1, -1))
+
+            # dealing witht the networks output
+            normalized_output = self.model.predict(normalized_input)[0][0]
+            denormalized_output = (
+                (normalized_output)
+                * (self.max_vals[self.n_features] - self.min_vals[self.n_features])
+            ) + self.min_vals[self.n_features]
+            model_price = int(round(denormalized_output, 0))
+            # print("model price: ", model_price)
+
+            if self.otype == "Ask":
+                if model_price < self.limit:
+                    self.count[1] += 1
+                    model_price = self.limit
+            else:
+                if model_price > self.limit:
+                    self.count[0] += 1
+                    model_price = self.limit
+
+            order = Order(
+                self.tid,
+                self.otype,
+                model_price,
+                self.orders[coid].qty,
+                time,
+                self.orders[coid].coid,
+                self.orders[coid].toid,
+            )
+            self.last_quote = order
+        return order
 
 
 class TraderGiveaway(Trader):
@@ -579,7 +732,7 @@ class TraderZip(Trader):
 
 
 # pylint: disable=too-many-instance-attributes
-class TraderAa(Trader):
+class TraderAA(Trader):
     """
     Daniel Snashall's implementation of Vytelingum's AA trader, first described in his 2006 PhD Thesis.
     For more details see: Vytelingum, P., 2006. The Structure and Behaviour of the Continuous Double
@@ -1079,6 +1232,7 @@ class TraderGdx(Trader):
                     self.holdings - 1, self.remaining_offer_ops - 1
                 )
 
+            # print("GDX has limit: ", self.limit, " and price: ", self.price)
             order = Order(
                 self.tid,
                 self.job,

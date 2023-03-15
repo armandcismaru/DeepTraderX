@@ -45,13 +45,15 @@ NB this code has been written to be readable/intelligible, not efficient!"""
 
 import csv
 import math
+import os
 import queue
 import random
 import sys
 import threading
 import time
 from datetime import datetime
-from progress.bar import ShadyBar
+
+# from progress.bar import ShadyBar
 
 from tbse_exchange import Exchange
 from tbse_customer_orders import customer_orders
@@ -61,10 +63,13 @@ from tbse_trader_agents import (
     TraderSniper,
     TraderZic,
     TraderZip,
-    TraderAa,
+    TraderAA,
     TraderGdx,
+    DeepTrader,
 )
 import config
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
 # Adapted from original BSE code
@@ -147,9 +152,11 @@ def populate_market(trader_spec, traders, shuffle, verbose):
         if robot_type == "ZIP":
             return TraderZip("ZIP", name, 0.00, 0)
         if robot_type == "AA":
-            return TraderAa("AA", name, 0.00, 0)
+            return TraderAA("AA", name, 0.00, 0)
         if robot_type == "GDX":
             return TraderGdx("GDX", name, 0.00, 0)
+        if robot_type == "DTR":
+            return DeepTrader("DTR", name, 0.00, 0, "DeepTrader1_6")
         sys.exit(f"FATAL: don't know robot type {robot_type}\n")
 
     def shuffle_traders(ttype_char, n, trader_list):
@@ -211,6 +218,8 @@ def populate_market(trader_spec, traders, shuffle, verbose):
 
 # pylint: disable=too-many-arguments,too-many-locals,too-many-branches
 def run_exchange(
+    sess_id,
+    traders,
     exchange,
     order_q,
     trader_qs,
@@ -220,6 +229,8 @@ def run_exchange(
     sess_length,
     virtual_end,
     process_verbose,
+    tdump_file,
+    dump_each_trade,
     lobframes,
     lob_out,
     data_file,
@@ -271,6 +282,15 @@ def run_exchange(
                 q.put([trade, order, lob])
             if lobframes is not None:
                 _ = exchange.publish_lob(virtual_time, lobframes, False)
+
+            if dump_each_trade:
+                exchange.trade_stats(
+                    sess_id,
+                    traders,
+                    tdump_file,
+                    virtual_time,
+                    exchange.publish_lob(virtual_time, lobframes, False),
+                )
 
             if lob_out:
                 exchange.lob_data_out(virtual_time, data_file, limits)
@@ -354,6 +374,8 @@ def market_session(
     order_schedule,
     start_event,
     verbose,
+    dumpfile,
+    dump_each_trade,
     lob_out=True,
 ):
     """
@@ -367,6 +389,7 @@ def market_session(
     :param verbose: Should additional information be printed to the console
     :return: Returns the number of threads operating at the end of the session. Used to check threads didn't crash.
     """
+
     # initialise the exchange
     exchange = Exchange()
     order_q = queue.Queue()
@@ -380,10 +403,6 @@ def market_session(
     bookkeep_verbose = False
 
     lobframes = open(sess_id + "_LOB_frames.csv", "w", encoding="utf-8")
-
-    loading_bar = ShadyBar(
-        f"Running trades for {sess_id}", max=virtual_end, suffix="%(percent)d%%"
-    )
 
     # create a bunch of traders
     traders = {}
@@ -419,6 +438,8 @@ def market_session(
     ex_thread = threading.Thread(
         target=run_exchange,
         args=(
+            sess_id,
+            traders,
             exchange,
             order_q,
             trader_qs,
@@ -428,6 +449,8 @@ def market_session(
             sess_length,
             virtual_end,
             process_verbose,
+            dumpfile,
+            dump_each_trade,
             lobframes,
             lob_out,
             data_file,
@@ -473,8 +496,8 @@ def market_session(
                     kill_q.put(traders[kill].last_quote)
                     if verbose:
                         print(f"Killing order {str(traders[kill].last_quote)}")
+        # loading_bar.next()
         time.sleep(0.01)
-        loading_bar.next()
 
     start_event.clear()
     len_threads = len(threading.enumerate())
@@ -500,7 +523,7 @@ def market_session(
     if lob_out is not None:
         data_file.close()
 
-    loading_bar.finish()
+    # loading_bar.finish()
 
     return len_threads
 
@@ -683,13 +706,14 @@ if __name__ == "__main__":
     NUM_AA = config.numAA
     NUM_GVWY = config.numGVWY
     NUM_SHVR = config.numSHVR
+    NUM_DTR = config.numDTR
 
     NUM_OF_ARGS = len(sys.argv)
     if NUM_OF_ARGS == 1:
         USE_CONFIG = True
     elif NUM_OF_ARGS == 2:
         USE_CSV = True
-    elif NUM_OF_ARGS == 7:
+    elif NUM_OF_ARGS == 8:
         USE_COMMAND_LINE = True
         try:
             NUM_ZIC = int(sys.argv[1])
@@ -698,8 +722,9 @@ if __name__ == "__main__":
             NUM_AA = int(sys.argv[4])
             NUM_GVWY = int(sys.argv[5])
             NUM_SHVR = int(sys.argv[6])
+            NUM_DTR = int(sys.argv[7])
         except ValueError:
-            print("ERROR: Invalid trader schedule. Please enter six integer values.")
+            print("ERROR: Invalid trader schedule. Please enter seven integer values.")
             sys.exit()
     else:
         print("Invalid input arguements.")
@@ -709,8 +734,8 @@ if __name__ == "__main__":
             " $ python3 tbse.py <string>.csv  ---  Enter name of csv file describing a series of trader schedules."
         )
         print(
-            " $ python3 tbse.py <int> <int> <int> <int> <int> <int>  ---  Enter 6 integer values representing trader \
-        schedule."
+            " $ python3 tbse.py <int> <int> <int> <int> <int> <int> <int>  ---  Enter 7 integer values representing \
+        trader schedule."
         )
         sys.exit()
     # pylint: disable=too-many-boolean-expressions
@@ -721,6 +746,7 @@ if __name__ == "__main__":
         or NUM_AA < 0
         or NUM_GVWY < 0
         or NUM_SHVR < 0
+        or NUM_DTR < 0
     ):
         print("ERROR: Invalid trader schedule. All input integers should be positive.")
         sys.exit()
@@ -738,6 +764,7 @@ if __name__ == "__main__":
             ("AA", NUM_AA),
             ("GVWY", NUM_GVWY),
             ("SHVR", NUM_SHVR),
+            ("DTR", NUM_DTR),
         ]
 
         sellers_spec = buyers_spec
@@ -745,7 +772,7 @@ if __name__ == "__main__":
 
         file_name = (
             f"{str(NUM_ZIC).zfill(2)}-{str(NUM_ZIP).zfill(2)}-{str(NUM_GDX).zfill(2)}-"
-            f"{str(NUM_AA).zfill(2)}-{str(NUM_GVWY).zfill(2)}-{str(NUM_SHVR).zfill(2)}.csv"
+            f"{str(NUM_AA).zfill(2)}-{str(NUM_GVWY).zfill(2)}-{str(NUM_SHVR).zfill(2)}-{str(NUM_DTR).zfill(2)}.csv"
         )
         with open(file_name, "w", encoding="utf-8") as tdump:
             trader_count = 0
@@ -758,13 +785,13 @@ if __name__ == "__main__":
                 print("WARNING: Too many traders can cause unstable behaviour.")
 
             trial = 1
-            if config.numTrials > 1:
-                dump_all = False
-            else:
-                dump_all = True
+            dump_all = True
 
             while trial < (config.numTrials + 1):
                 trial_id = f"trial{str(trial).zfill(7)}"
+                # loading_bar = ShadyBar(
+                #     f"Running trades for {trial_id} ", max=1000, suffix="%(percent)d%%"
+                # )
                 start_session_event = threading.Event()
                 try:
                     NUM_THREADS = market_session(
@@ -775,6 +802,8 @@ if __name__ == "__main__":
                         order_sched,
                         start_session_event,
                         False,
+                        tdump,
+                        dump_all,
                     )
 
                     if NUM_THREADS != trader_count + 2:
@@ -794,8 +823,8 @@ if __name__ == "__main__":
     # and have a CSV file with name <string>.csv with a list of values
     # representing the number of each trader type present in the
     # market you wish to run. The order is:
-    # 				ZIC,ZIP,GDX,AA,GVWY,SHVR
-    # So an example entry would be: 5,5,0,0,5,5
+    # 				ZIC,ZIP,GDX,AA,GVWY,SHVR,DTR
+    # So an example entry would be: 5,5,0,0,5,5,0
     # which would be 5 ZIC traders, 5 ZIP traders, 5 Giveaway traders and
     # 5 Shaver traders. To have different buyer and seller specs modifications
     # would be needed.
@@ -824,9 +853,10 @@ if __name__ == "__main__":
                 NUM_AA = int(ratio[3])
                 NUM_GVWY = int(ratio[4])
                 NUM_SHVR = int(ratio[5])
+                NUM_DTR = int(ratio[6])
             except ValueError:
                 print(
-                    "ERROR: Invalid trader schedule. Please enter six, comma-separated, integer values. Skipping "
+                    "ERROR: Invalid trader schedule. Please enter seven, comma-separated, integer values. Skipping "
                     "this trader schedule."
                 )
                 continue
@@ -844,6 +874,7 @@ if __name__ == "__main__":
                 or NUM_AA < 0
                 or NUM_GVWY < 0
                 or NUM_SHVR < 0
+                or NUM_DTR < 0
             ):
                 print(
                     "ERROR: Invalid trader schedule. All input integers should be positive. Skipping this trader"
@@ -853,7 +884,7 @@ if __name__ == "__main__":
 
             file_name = (
                 f"{str(NUM_ZIC).zfill(2)}-{str(NUM_ZIP).zfill(2)}-{str(NUM_GDX).zfill(2)}-"
-                f"{str(NUM_AA).zfill(2)}-{str(NUM_GVWY).zfill(2)}-{str(NUM_SHVR).zfill(2)}.csv"
+                f"{str(NUM_AA).zfill(2)}-{str(NUM_GVWY).zfill(2)}-{str(NUM_SHVR).zfill(2)}-{str(NUM_DTR).zfill(2)}.csv"
             )
             with open(file_name, "w", encoding="utf-8") as tdump:
                 for _ in range(0, config.numSchedulesPerRatio):
@@ -866,6 +897,7 @@ if __name__ == "__main__":
                         ("AA", NUM_AA),
                         ("GVWY", NUM_GVWY),
                         ("SHVR", NUM_SHVR),
+                        ("DTR", NUM_DTR),
                     ]
 
                     sellers_spec = buyers_spec
@@ -881,8 +913,9 @@ if __name__ == "__main__":
                         print("WARNING: Too many traders can cause unstable behaviour.")
 
                     trial = 1
+                    dump_all = False
                     while trial <= config.numTrialsPerSchedule:
-                        trial_id = f"trial{str(trial_number).zfill(4)}"
+                        trial_id = f"trial{str(trial_number).zfill(7)}"
                         start_session_event = threading.Event()
                         try:
                             NUM_THREADS = market_session(
@@ -893,6 +926,8 @@ if __name__ == "__main__":
                                 order_sched,
                                 start_session_event,
                                 False,
+                                tdump,
+                                dump_all,
                             )
                             if NUM_THREADS != trader_count + 2:
                                 trial = trial - 1

@@ -1,4 +1,4 @@
-# pylint: disable=invalid-name,duplicate-code
+# pylint: disable=invalid-name
 """
 Module containing the base class for neural networks.
 """

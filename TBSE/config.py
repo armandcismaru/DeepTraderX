@@ -2,8 +2,8 @@
 # pylint: skip-file
 
 # General
-sessionLength = 10  # Length of session in seconds.
-virtualSessionLength = 600  # Number of virtual timesteps per sessionLength.
+sessionLength = 60  # Length of session in seconds.
+virtualSessionLength = 60 * 60  # Number of virtual timesteps per sessionLength.
 verbose = False  # Adds additional output for debugging.
 
 # BSE ONLY
@@ -19,6 +19,7 @@ numGDX = 5
 numAA = 0
 numGVWY = 0
 numSHVR = 0
+numDTR = 0
 
 # Order Schedule
 useOffset = True  # Use an offset function to vary equilibrium price, this is disabled if useInputFile = True
@@ -61,7 +62,7 @@ numTrials = 1
 
 # For multiple schedules: using input csv file.
 numSchedulesPerRatio = 1  # Number of schedules per ratio of traders in csv file.
-numTrialsPerSchedule = 10  # Number of trails per schedule.
+numTrialsPerSchedule = 10  # Number of trials per schedule.
 symmetric = True  # Should range of supply = range of demand?
 
 
@@ -90,6 +91,7 @@ def parse_config():
         and isinstance(numGVWY, int)
         and isinstance(numSHVR, int)
         and isinstance(numZIP, int)
+        and isinstance(numDTR, int)
     ):
         print("CONFIG ERROR: Trader schedule values must be integer.")
         valid = False
@@ -149,6 +151,7 @@ def parse_config():
         or numSHVR < 0
         or numZIC < 0
         or numZIP < 0
+        or numDTR < 0
     ):
         print(
             "CONFIG ERROR: All trader schedule values must be greater than or equal to 0."

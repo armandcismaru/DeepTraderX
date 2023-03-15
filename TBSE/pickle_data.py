@@ -1,4 +1,3 @@
-# pylint: disable=duplicate-code
 """
 Utiliy to pickle the data from csv files to a single file.
 """
