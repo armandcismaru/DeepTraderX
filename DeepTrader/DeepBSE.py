@@ -1355,7 +1355,7 @@ class DeepTrader(Trader):
 
             # creating the input for the network
             x = self.create_input(lob)
-            # print(x)
+
             normalized_input = (x - self.min_vals[: self.n_features]) / (
                 self.max_vals[: self.n_features] - self.min_vals[: self.n_features]
             )
@@ -1363,13 +1363,13 @@ class DeepTrader(Trader):
 
             # dealing witht the networks output
             normalized_output = self.model.predict(normalized_input)[0][0]
-            # print("normalized output: ", normalized_output)
+          
             denormalized_output = (
                 (normalized_output)
                 * (self.max_vals[self.n_features] - self.min_vals[self.n_features])
             ) + self.min_vals[self.n_features]
             model_price = int(round(denormalized_output, 0))
-            # print("model price: ", model_price, "limit", limit)
+            print("model price: ", model_price, "limit", limit)
 
             if otype == "Ask":
                 if model_price < limit:
@@ -2276,9 +2276,8 @@ if __name__ == "__main__":
         ]
         perms = [p for i in proportions for p in set(permutations(i))]
         session_configs = [list(zip(p[0], p[1])) for p in list(product(combos, perms))]
-        # print(session_configs)
-        # sys.exit("exit training data already collected.")
-        trials_per_config = 1
+        
+        trials_per_config = 30
         # trial = start * (trials_per_config) * len(session_configs)
         trial = start
 

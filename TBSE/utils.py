@@ -6,10 +6,11 @@ import os
 import csv
 import pickle
 import numpy as np
+import pandas as pd
 from progress.bar import ShadyBar
 
 MAX_VALUES = [
-    6.0000000e02,
+    3.6E3,
     1.0000000e00,
     2.2400000e02,
     6.0950000e02,
@@ -108,6 +109,45 @@ def normalize_train():
                 break  # no more data in the file
             except ValueError:
                 pass
+
+def read_data(no_files):
+    """
+    Read the data from the csv file.
+    """
+
+    X = np.empty((0, 13))
+    y = np.empty((0, 1))
+    for i in range(no_files):
+        filename = f"trial{(i+1):07d}.csv"
+        try:
+            data = pd.read_csv(filename)
+            X_file = data.iloc[:, :13].values
+            y_file = data.iloc[:, 13].values.reshape(-1, 1)
+  
+            # Append to the arrays
+            X = np.vstack((X, X_file))
+            y = np.vstack((y, y_file))
+
+        except FileNotFoundError:
+            print("Trial file not found!")
+      
+    return X, y
+
+
+def split_train_test_data(data, ratio):
+    """
+    Split the data into train and test data.
+    """
+
+    A = np.array([])
+    B = np.array([])
+
+    split_index = int(ratio[0] / (ratio[0] + ratio[1]) * len(data))
+
+    A = np.append(A, data[:split_index])
+    B = np.append(B, data[split_index:])
+
+    return A, B
 
 
 if __name__ == "__main__":

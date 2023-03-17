@@ -7,7 +7,7 @@ import os
 import csv
 import numpy as np
 from keras.models import model_from_json
-from pickle_data import MAX_VALUES, MIN_VALUES
+from utils import MAX_VALUES, MIN_VALUES, read_data
 
 
 # pylint: disable=invalid-name,missing-function-docstring,no-member
@@ -45,6 +45,19 @@ class NeuralNetwork:
         print("Saved model to disk.")
 
     @staticmethod
+    def test(model, X, y, verbose):
+        """Test the model."""
+
+        n_features = 13
+        normalized_output = model.predict(X, verbose=verbose)
+
+        yhat = (
+            (normalized_output) * (MAX_VALUES[n_features] - MIN_VALUES[n_features])
+        ) + MIN_VALUES[n_features]
+
+        print(y, yhat)
+
+    @staticmethod
     def load_network(filename):
         # path directory variables
         path = "./Models/" + filename + "/"
@@ -78,3 +91,35 @@ class NeuralNetwork:
             min_vals = np.array([float(f.strip()) for f in f_data[1]])
 
         return max_vals, min_vals
+    
+    @staticmethod
+    def test_models(no_files):
+        """
+        Test the models.
+        """
+
+        n_features = 13
+        X, y = read_data(no_files)
+        max_values, min_values = NeuralNetwork.normalization_values("DeepTrader1_6")
+
+        # split_ratio = [9, 1]
+        # train_X, test_X = split_train_test_data(X, split_ratio)
+        # train_X = train_X.reshape((-1, 1, 1))
+        # test_X = test_X.reshape((-1, 1, 1))
+        # _ , test_y = split_train_test_data(y, split_ratio)
+
+        model = NeuralNetwork.load_network("DeepTrader1_6")
+        for i in range(X.shape[0]):
+            normalized_input = (X[i] - min_values[:n_features]) / (
+                    max_values[:n_features] - min_values[:n_features]
+                )
+            normalized_input = np.reshape(normalized_input, (1, 1, -1))
+
+            print(normalized_input)
+            print(normalized_input.shape)
+            NeuralNetwork.test(model, normalized_input, y[i], verbose=1)
+
+
+if __name__ == "__main__":
+    NeuralNetwork.test_models(30)
+

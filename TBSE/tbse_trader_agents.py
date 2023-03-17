@@ -163,6 +163,7 @@ class DeepTrader(Trader):
         self.max_vals, self.min_vals = nn.normalization_values(self.filename)
         self.count = [0, 0]  # count of the number of times the model has been used
 
+
     # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     def create_input(self, lob):
         """Create the input for the model."""
@@ -259,7 +260,6 @@ class DeepTrader(Trader):
 
             # creating the input for the network
             x = self.create_input(lob)
-            # print(x)
 
             normalized_input = (x - self.min_vals[: self.n_features]) / (
                 self.max_vals[: self.n_features] - self.min_vals[: self.n_features]
@@ -273,7 +273,6 @@ class DeepTrader(Trader):
                 * (self.max_vals[self.n_features] - self.min_vals[self.n_features])
             ) + self.min_vals[self.n_features]
             model_price = int(round(denormalized_output, 0))
-            # print("model price: ", model_price)
 
             if self.otype == "Ask":
                 if model_price < self.limit:
