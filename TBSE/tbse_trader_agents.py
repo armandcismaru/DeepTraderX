@@ -163,7 +163,6 @@ class DeepTrader(Trader):
         self.max_vals, self.min_vals = nn.normalization_values(self.filename)
         self.count = [0, 0]  # count of the number of times the model has been used
 
-
     # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     def create_input(self, lob):
         """Create the input for the model."""

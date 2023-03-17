@@ -59,7 +59,7 @@ class Multivariate_LSTM(NeuralNetwork):
 
         self.max_vals = train_data.train_max
         self.min_vals = train_data.train_min
-        
+
         self.model.fit(train_data, epochs=20, verbose=1, workers=16)
         self.save()
 

@@ -1363,7 +1363,7 @@ class DeepTrader(Trader):
 
             # dealing witht the networks output
             normalized_output = self.model.predict(normalized_input)[0][0]
-          
+
             denormalized_output = (
                 (normalized_output)
                 * (self.max_vals[self.n_features] - self.min_vals[self.n_features])
@@ -2276,7 +2276,7 @@ if __name__ == "__main__":
         ]
         perms = [p for i in proportions for p in set(permutations(i))]
         session_configs = [list(zip(p[0], p[1])) for p in list(product(combos, perms))]
-        
+
         trials_per_config = 30
         # trial = start * (trials_per_config) * len(session_configs)
         trial = start

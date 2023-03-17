@@ -10,7 +10,7 @@ import pandas as pd
 from progress.bar import ShadyBar
 
 MAX_VALUES = [
-    3.6E3,
+    3.6e3,
     1.0000000e00,
     2.2400000e02,
     6.0950000e02,
@@ -110,6 +110,7 @@ def normalize_train():
             except ValueError:
                 pass
 
+
 def read_data(no_files):
     """
     Read the data from the csv file.
@@ -123,14 +124,14 @@ def read_data(no_files):
             data = pd.read_csv(filename)
             X_file = data.iloc[:, :13].values
             y_file = data.iloc[:, 13].values.reshape(-1, 1)
-  
+
             # Append to the arrays
             X = np.vstack((X, X_file))
             y = np.vstack((y, y_file))
 
         except FileNotFoundError:
             print("Trial file not found!")
-      
+
     return X, y
 
 

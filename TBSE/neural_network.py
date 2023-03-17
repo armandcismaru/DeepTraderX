@@ -91,7 +91,7 @@ class NeuralNetwork:
             min_vals = np.array([float(f.strip()) for f in f_data[1]])
 
         return max_vals, min_vals
-    
+
     @staticmethod
     def test_models(no_files):
         """
@@ -111,15 +111,11 @@ class NeuralNetwork:
         model = NeuralNetwork.load_network("DeepTrader1_6")
         for i in range(X.shape[0]):
             normalized_input = (X[i] - min_values[:n_features]) / (
-                    max_values[:n_features] - min_values[:n_features]
-                )
+                max_values[:n_features] - min_values[:n_features]
+            )
             normalized_input = np.reshape(normalized_input, (1, 1, -1))
-
-            print(normalized_input)
-            print(normalized_input.shape)
             NeuralNetwork.test(model, normalized_input, y[i], verbose=1)
 
 
 if __name__ == "__main__":
     NeuralNetwork.test_models(30)
-
