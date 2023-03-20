@@ -1,4 +1,4 @@
-# pylint: disable=C0103
+# pylint: disable=C0103,C0413,E0401
 """-*- coding: utf-8 -*-
 
 TBSE: The Threaded Bristol Stock Exchange
@@ -51,13 +51,21 @@ import random
 import sys
 import threading
 import time
+from pathlib import Path
 from datetime import datetime
+import config
 
-# from progress.bar import ShadyBar
+myDir = os.getcwd()
+sys.path.append(myDir)
 
-from tbse_exchange import Exchange
-from tbse_customer_orders import customer_orders
-from tbse_trader_agents import (
+path = Path(myDir)
+
+a = str(path.parent.absolute())
+sys.path.append(a)
+
+from tbse.tbse_exchange import Exchange
+from tbse.tbse_customer_orders import customer_orders
+from tbse.tbse_trader_agents import (
     TraderGiveaway,
     TraderShaver,
     TraderSniper,
@@ -67,7 +75,6 @@ from tbse_trader_agents import (
     TraderGdx,
     DeepTrader,
 )
-import config
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
@@ -375,7 +382,7 @@ def market_session(
     start_event,
     verbose,
     dumpfile,
-    dump_each_trade,
+    dump_data,
     lob_out=True,
 ):
     """
@@ -402,7 +409,10 @@ def market_session(
     respond_verbose = False
     bookkeep_verbose = False
 
-    lobframes = open(sess_id + "_LOB_frames.csv", "w", encoding="utf-8")
+    if dump_data:
+        lobframes = open(sess_id + "_LOB_frames.csv", "w", encoding="utf-8")
+    else:
+        lobframes = None
 
     # create a bunch of traders
     traders = {}
@@ -450,7 +460,7 @@ def market_session(
             virtual_end,
             process_verbose,
             dumpfile,
-            dump_each_trade,
+            dump_data,
             lobframes,
             lob_out,
             data_file,
@@ -514,7 +524,8 @@ def market_session(
         lobframes.close()
 
     # end of an experiment -- dump the tape
-    exchange.tape_dump("transactions.csv", "a", "keep")
+    if dump_data:
+        exchange.tape_dump("transactions.csv", "a", "keep")
 
     # write trade_stats for this experiment NB end-of-session summary only
     if len_threads == len(traders) + 2:
@@ -785,7 +796,7 @@ if __name__ == "__main__":
                 print("WARNING: Too many traders can cause unstable behaviour.")
 
             trial = 1
-            dump_all = True
+            dump_all = False
 
             while trial < (config.numTrials + 1):
                 trial_id = f"trial{str(trial).zfill(7)}"
@@ -913,7 +924,7 @@ if __name__ == "__main__":
                         print("WARNING: Too many traders can cause unstable behaviour.")
 
                     trial = 1
-                    dump_all = False
+                    dump_all = True
                     while trial <= config.numTrialsPerSchedule:
                         trial_id = f"trial{str(trial_number).zfill(7)}"
                         start_session_event = threading.Event()
@@ -929,6 +940,7 @@ if __name__ == "__main__":
                                 tdump,
                                 dump_all,
                             )
+
                             if NUM_THREADS != trader_count + 2:
                                 trial = trial - 1
                                 trial_number = trial_number - 1

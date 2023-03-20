@@ -26,7 +26,7 @@ useOffset = True  # Use an offset function to vary equilibrium price, this is di
 useInputFile = (
     True  # Use an input file to define order schedule (e.g. Real World Trading data)
 )
-input_file = "RWD/IBM-310817.csv"  # Path to real world data input file
+input_file = "tbse/RWD/IBM-310817.csv"  # Path to real world data input file
 stepmode = "fixed"  # Valid values: 'fixed', 'jittered', 'random'
 timemode = (
     "periodic"  # Valid values: 'periodic', 'drip-fixed', 'drip-jitter', 'drip-poisson'
@@ -62,7 +62,7 @@ numTrials = 1
 
 # For multiple schedules: using input csv file.
 numSchedulesPerRatio = 1  # Number of schedules per ratio of traders in csv file.
-numTrialsPerSchedule = 10  # Number of trials per schedule.
+numTrialsPerSchedule = 1  # Number of trials per schedule.
 symmetric = True  # Should range of supply = range of demand?
 
 

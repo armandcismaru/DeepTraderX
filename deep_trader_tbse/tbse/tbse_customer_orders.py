@@ -4,9 +4,9 @@ Module containing code for production of customer orders
 import random
 import sys
 
-from tbse_msg_classes import Order
-from tbse_sys_consts import TBSE_SYS_MAX_PRICE, TBSE_SYS_MIN_PRICE
 import config
+from .tbse_msg_classes import Order
+from .tbse_sys_consts import TBSE_SYS_MAX_PRICE, TBSE_SYS_MIN_PRICE
 
 
 # pylint: disable=too-many-arguments,too-many-locals,too-many-statements

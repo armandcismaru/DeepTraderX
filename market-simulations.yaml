@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: market-simulations
+spec:
+  completions: 32
+  parallelism: 32
+  template:
+    metadata:
+      name: market-simulations
+    spec:
+      containers:
+      - name: market-simulations
+        image: your-image-name
+        command: ["python3", "deep_trader_tbse/tbse.py", "s3://my-bucket/markets.csv"]
+        env:
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: aws_access_key_id
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: aws_secret_access_key
+      restartPolicy: Never
+      volumes:
+      - name: aws-secret
+        secret:
+          secretName: aws-credentials
+  backoffLimit: 4

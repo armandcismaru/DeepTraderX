@@ -5,7 +5,7 @@ Minor adaptions from the original BSE code by Dave Cliff
 """
 import sys
 import numpy as np
-from tbse_sys_consts import TBSE_SYS_MIN_PRICE, TBSE_SYS_MAX_PRICE
+from .tbse_sys_consts import TBSE_SYS_MIN_PRICE, TBSE_SYS_MAX_PRICE
 
 
 # pylint: disable=too-many-instance-attributes

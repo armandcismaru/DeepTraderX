@@ -10,8 +10,8 @@ from keras.optimizers import Adam
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.models import Sequential
-from NeuralNetwork import NeuralNetwork
-from DataGenerator import DataGenerator
+from .neural_network import NeuralNetwork
+from .data_generator import DataGenerator
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 

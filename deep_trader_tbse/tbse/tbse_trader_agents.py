@@ -1,13 +1,14 @@
+# pylint: disable=too-many-lines,duplicate-code,E0401
 """Module containing all trader algos"""
-# pylint: disable=too-many-lines, duplicate-code
+
 import math
 import random
 import sys
 
 import numpy as np
-from tbse_msg_classes import Order
-from tbse_sys_consts import TBSE_SYS_MAX_PRICE, TBSE_SYS_MIN_PRICE
-from neural_network import NeuralNetwork as nn
+from deep_trader.neural_network import NeuralNetwork as nn
+from .tbse_msg_classes import Order
+from .tbse_sys_consts import TBSE_SYS_MAX_PRICE, TBSE_SYS_MIN_PRICE
 
 
 # pylint: disable=too-many-instance-attributes
