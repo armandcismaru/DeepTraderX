@@ -4,7 +4,7 @@ Module containing code for production of customer orders
 import random
 import sys
 
-import config
+from ..config import useInputFile
 from .tbse_msg_classes import Order
 from .tbse_sys_consts import TBSE_SYS_MAX_PRICE, TBSE_SYS_MIN_PRICE
 
@@ -58,7 +58,7 @@ def customer_orders(time, coid, traders, trader_stats, order_sched, pending, ver
         :return: Order price
         """
         # pylint: disable=too-many-branches,too-many-statements
-        if config.useInputFile:
+        if useInputFile:
             if len(schedule[0]) > 2:
                 offset_function = schedule[0][2][0]
                 offset_function_params = [schedule_end] + list(schedule[0][2][1])
