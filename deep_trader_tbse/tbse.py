@@ -46,7 +46,8 @@ NB this code has been written to be readable/intelligible, not efficient!"""
 import csv
 import math
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import queue
 import random
 import sys
@@ -77,6 +78,7 @@ from src.tbse.tbse_trader_agents import (
     TraderGdx,
     DeepTrader,
 )
+
 
 # Adapted from original BSE code
 def trade_stats(expid, traders, dumpfile):
@@ -484,7 +486,9 @@ def market_session(
     cuid = 0  # Customer order id
 
     while time.time() < (start_time + sess_length):
-        print(f"Time: {time.time() - start_time} / {sess_length} ({(time.time() - start_time) / sess_length * 100}%)")
+        print(
+            f"Time: {time.time() - start_time} / {sess_length} ({(time.time() - start_time) / sess_length * 100}%)"
+        )
         virtual_time = (time.time() - start_time) * (virtual_end / sess_length)
         # distribute customer orders
         [pending_cust_orders, kills, cuid] = customer_orders(
@@ -903,10 +907,12 @@ if __name__ == "__main__":
                 f"{str(NUM_AA).zfill(2)}-{str(NUM_GVWY).zfill(2)}-{str(NUM_SHVR).zfill(2)}-{str(NUM_DTR).zfill(2)}.csv"
             )
 
-            s3 = boto3.client("s3",
-                aws_access_key_id = "ASIA3MJWW2UGRG5OQKNP",
-                aws_secret_access_key = "JSnujlrI52NtJkw2VDxBlfctlr83K7NkOVHZha/4",
-                aws_session_token = "FwoGZXIvYXdzEN3//////////wEaDJ81Zjp1nkXFV4vPtyLGASxd+p1sQJ68k1Dx/R8CQ7sGoWCRk/5kpIRWLNqzdSsdq4m5ICzbMoaTFRFT95bDTVogGRaCu4n1hSOCkmbLqW0CwRE2HeR3FCAA6jX3dYnuZ6WwLGbvW+Gyjac5L6E1c1d+gs5/cEGIu4Wk2WZkbQ3b1Sj+ixssnfvGf9v7aIH4u6XaEvK44Jd7aFNiPYyFR4aqBYrDZOrw9bSQoS3SdhfyTlBhX4iQBKoL4ksjHyC2L5kFXbv20uee7l9OPACrKz0MAbTN4CjAheigBjIt58p86zjEqAdbFdDirhPLobp8VXHlf/dmnBsQzJtUHxY4hWR1H3o/QKZiFGhV"
+            # pylint: disable=line-too-long
+            s3 = boto3.client(
+                "s3",
+                aws_access_key_id="ASIA3MJWW2UGRG5OQKNP",
+                aws_secret_access_key="JSnujlrI52NtJkw2VDxBlfctlr83K7NkOVHZha/4",
+                aws_session_token="FwoGZXIvYXdzEN3//////////wEaDJ81Zjp1nkXFV4vPtyLGASxd+p1sQJ68k1Dx/R8CQ7sGoWCRk/5kpIRWLNqzdSsdq4m5ICzbMoaTFRFT95bDTVogGRaCu4n1hSOCkmbLqW0CwRE2HeR3FCAA6jX3dYnuZ6WwLGbvW+Gyjac5L6E1c1d+gs5/cEGIu4Wk2WZkbQ3b1Sj+ixssnfvGf9v7aIH4u6XaEvK44Jd7aFNiPYyFR4aqBYrDZOrw9bSQoS3SdhfyTlBhX4iQBKoL4ksjHyC2L5kFXbv20uee7l9OPACrKz0MAbTN4CjAheigBjIt58p86zjEqAdbFdDirhPLobp8VXHlf/dmnBsQzJtUHxY4hWR1H3o/QKZiFGhV",
             )
 
             with open(file_name, "w", encoding="utf-8") as tdump:

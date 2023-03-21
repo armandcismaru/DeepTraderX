@@ -72,7 +72,6 @@ try:
     # --from-literal=aws_access_key_id=<YOUR_ACCESS_KEY_ID> \
     # --from-literal=aws_secret_access_key=<YOUR_SECRET_ACCESS_KEY>
 
-
     # docker build -t armandcismaru/deeptrader:deeptrader-tbse .
     # docker push/pull/run armandcismaru/deeptrader:deeptrader-tbse
 
@@ -103,7 +102,7 @@ try:
         )
 
     print(f"Instance IPs: {', '.join(instance_ips)}")
-    
+
     sys.exit()
     # Set up kops environment variables
     os.environ["KOPS_STATE_STORE"] = "s3://my-kops-bucket-fz19792"
