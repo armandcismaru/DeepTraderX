@@ -1,3 +1,4 @@
+# pylint: disable=import-error
 """
 Module containing code for production of customer orders
 """

@@ -6,7 +6,7 @@ import random
 import sys
 
 import numpy as np
-from deep_trader.neural_network import NeuralNetwork as nn
+from ..deep_trader.neural_network import NeuralNetwork as nn
 from .tbse_msg_classes import Order
 from .tbse_sys_consts import TBSE_SYS_MAX_PRICE, TBSE_SYS_MIN_PRICE
 

@@ -46,6 +46,7 @@ NB this code has been written to be readable/intelligible, not efficient!"""
 import csv
 import math
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 import queue
 import random
 import sys
@@ -53,7 +54,8 @@ import threading
 import time
 from pathlib import Path
 from datetime import datetime
-import config
+import boto3
+import src.config
 
 myDir = os.getcwd()
 sys.path.append(myDir)
@@ -63,9 +65,9 @@ path = Path(myDir)
 a = str(path.parent.absolute())
 sys.path.append(a)
 
-from tbse.tbse_exchange import Exchange
-from tbse.tbse_customer_orders import customer_orders
-from tbse.tbse_trader_agents import (
+from src.tbse.tbse_exchange import Exchange
+from src.tbse.tbse_customer_orders import customer_orders
+from src.tbse.tbse_trader_agents import (
     TraderGiveaway,
     TraderShaver,
     TraderSniper,
@@ -75,9 +77,6 @@ from tbse.tbse_trader_agents import (
     TraderGdx,
     DeepTrader,
 )
-
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-
 
 # Adapted from original BSE code
 def trade_stats(expid, traders, dumpfile):
@@ -420,8 +419,9 @@ def market_session(
     trader_qs = []
     trader_stats = populate_market(trader_spec, traders, True, verbose)
 
+    lob_file_name = str(time.time())
     if lob_out:
-        data_file = open(sess_id + ".csv", "w+", encoding="utf-8")
+        data_file = open(lob_file_name + ".csv", "w", encoding="utf-8")
 
     # create threads and queues for traders
     for i in range(0, len(traders)):
@@ -484,6 +484,7 @@ def market_session(
     cuid = 0  # Customer order id
 
     while time.time() < (start_time + sess_length):
+        print(f"Time: {time.time() - start_time} / {sess_length} ({(time.time() - start_time) / sess_length * 100}%)")
         virtual_time = (time.time() - start_time) * (virtual_end / sess_length)
         # distribute customer orders
         [pending_cust_orders, kills, cuid] = customer_orders(
@@ -506,8 +507,8 @@ def market_session(
                     kill_q.put(traders[kill].last_quote)
                     if verbose:
                         print(f"Killing order {str(traders[kill].last_quote)}")
-        # loading_bar.next()
         time.sleep(0.01)
+    print("Session complete")
 
     start_event.clear()
     len_threads = len(threading.enumerate())
@@ -531,10 +532,14 @@ def market_session(
     if len_threads == len(traders) + 2:
         trade_stats(sess_id, traders, tdump)
 
-    if lob_out is not None:
+    print(f"Session {sess_id} complete")
+    if lob_out:
         data_file.close()
-
-    # loading_bar.finish()
+        s3.upload_file(
+            f"{lob_file_name}.csv", "output-data-fz19792", f"{lob_file_name}.csv"
+        )
+        print(f"uploading to s3 for {sess_id}...")
+        os.remove(lob_file_name + ".csv")
 
     return len_threads
 
@@ -544,24 +549,26 @@ def market_session(
 
 def get_order_schedule():
     """
-    Produces order schedule as defined in config file.
+    Produces order schedule as defined in src.config file.
     :return: Order schedule representing the supply/demand curve of the market
     """
     range_max = random.randint(
-        config.supply["rangeMax"]["rangeLow"], config.supply["rangeMax"]["rangeHigh"]
+        src.config.supply["rangeMax"]["rangeLow"],
+        src.config.supply["rangeMax"]["rangeHigh"],
     )
     range_min = random.randint(
-        config.supply["rangeMin"]["rangeLow"], config.supply["rangeMin"]["rangeHigh"]
+        src.config.supply["rangeMin"]["rangeLow"],
+        src.config.supply["rangeMin"]["rangeHigh"],
     )
 
-    if config.useInputFile:
+    if src.config.useInputFile:
         offset_function_event_list = get_offset_event_list()
         range_s = (
             range_min,
             range_max,
             [real_world_schedule_offset_function, [offset_function_event_list]],
         )
-    elif config.useOffset:
+    elif src.config.useOffset:
         range_s = (range_min, range_max, schedule_offset_function)
     else:
         range_s = (range_min, range_max)
@@ -569,30 +576,30 @@ def get_order_schedule():
     supply_schedule = [
         {
             "from": 0,
-            "to": config.virtualSessionLength,
+            "to": src.config.virtualSessionLength,
             "ranges": [range_s],
-            "stepmode": config.stepmode,
+            "stepmode": src.config.stepmode,
         }
     ]
 
-    if not config.symmetric:
+    if not src.config.symmetric:
         range_max = random.randint(
-            config.demand["rangeMax"]["rangeLow"],
-            config.demand["rangeMax"]["rangeHigh"],
+            src.config.demand["rangeMax"]["rangeLow"],
+            src.config.demand["rangeMax"]["rangeHigh"],
         )
         range_min = random.randint(
-            config.demand["rangeMin"]["rangeLow"],
-            config.demand["rangeMin"]["rangeHigh"],
+            src.config.demand["rangeMin"]["rangeLow"],
+            src.config.demand["rangeMin"]["rangeHigh"],
         )
 
-    if config.useInputFile:
+    if src.config.useInputFile:
         offset_function_event_list = get_offset_event_list()
         range_d = (
             range_min,
             range_max,
             [real_world_schedule_offset_function, [offset_function_event_list]],
         )
-    elif config.useOffset:
+    elif src.config.useOffset:
         range_d = (range_min, range_max, schedule_offset_function)
     else:
         range_d = (range_min, range_max)
@@ -600,17 +607,17 @@ def get_order_schedule():
     demand_schedule = [
         {
             "from": 0,
-            "to": config.virtualSessionLength,
+            "to": src.config.virtualSessionLength,
             "ranges": [range_d],
-            "stepmode": config.stepmode,
+            "stepmode": src.config.stepmode,
         }
     ]
 
     return {
         "sup": supply_schedule,
         "dem": demand_schedule,
-        "interval": config.interval,
-        "timemode": config.timemode,
+        "interval": src.config.interval,
+        "timemode": src.config.timemode,
     }
 
 
@@ -661,7 +668,7 @@ def get_offset_event_list():
     assumes data file is all for one date, sorted in t order, in correct format, etc. etc.
     :return: list of offset events
     """
-    with open(config.input_file, "r", encoding="utf-8") as input_file:
+    with open(src.config.input_file, "r", encoding="utf-8") as input_file:
         rwd_csv = csv.reader(input_file)
         scale_factor = 80
         # first pass: get t & price events, find out how long session is, get min & max price
@@ -703,7 +710,7 @@ def get_offset_event_list():
 # # Below here is where we set up and run a series of experiments
 
 if __name__ == "__main__":
-    if not config.parse_config():
+    if not src.config.parse_config():
         sys.exit()
 
     # Input configuration
@@ -711,13 +718,13 @@ if __name__ == "__main__":
     USE_CSV = False
     USE_COMMAND_LINE = False
 
-    NUM_ZIC = config.numZIC
-    NUM_ZIP = config.numZIP
-    NUM_GDX = config.numGDX
-    NUM_AA = config.numAA
-    NUM_GVWY = config.numGVWY
-    NUM_SHVR = config.numSHVR
-    NUM_DTR = config.numDTR
+    NUM_ZIC = src.config.numZIC
+    NUM_ZIP = src.config.numZIP
+    NUM_GDX = src.config.numGDX
+    NUM_AA = src.config.numAA
+    NUM_GVWY = src.config.numGVWY
+    NUM_SHVR = src.config.numSHVR
+    NUM_DTR = src.config.numDTR
 
     NUM_OF_ARGS = len(sys.argv)
     if NUM_OF_ARGS == 1:
@@ -740,7 +747,7 @@ if __name__ == "__main__":
     else:
         print("Invalid input arguements.")
         print("Options for running TBSE:")
-        print("	$ python3 tbse.py  ---  Run using trader schedule from config.")
+        print("	$ python3 tbse.py  ---  Run using trader schedule from src.config.")
         print(
             " $ python3 tbse.py <string>.csv  ---  Enter name of csv file describing a series of trader schedules."
         )
@@ -763,7 +770,7 @@ if __name__ == "__main__":
         sys.exit()
 
     # This section of code allows for the same order and trader schedules
-    # to be tested config.numTrials times.
+    # to be tested src.config.numTrials times.
 
     if USE_CONFIG or USE_COMMAND_LINE:
         order_sched = get_order_schedule()
@@ -798,17 +805,14 @@ if __name__ == "__main__":
             trial = 1
             dump_all = False
 
-            while trial < (config.numTrials + 1):
+            while trial < (src.config.numTrials + 1):
                 trial_id = f"trial{str(trial).zfill(7)}"
-                # loading_bar = ShadyBar(
-                #     f"Running trades for {trial_id} ", max=1000, suffix="%(percent)d%%"
-                # )
                 start_session_event = threading.Event()
                 try:
                     NUM_THREADS = market_session(
                         trial_id,
-                        config.sessionLength,
-                        config.virtualSessionLength,
+                        src.config.sessionLength,
+                        src.config.virtualSessionLength,
                         traders_spec,
                         order_sched,
                         start_session_event,
@@ -817,6 +821,7 @@ if __name__ == "__main__":
                         dump_all,
                     )
 
+                    print(f"Trial {trial} complete, {NUM_THREADS} threads running.")
                     if NUM_THREADS != trader_count + 2:
                         trial = trial - 1
                         start_session_event.clear()
@@ -897,8 +902,15 @@ if __name__ == "__main__":
                 f"{str(NUM_ZIC).zfill(2)}-{str(NUM_ZIP).zfill(2)}-{str(NUM_GDX).zfill(2)}-"
                 f"{str(NUM_AA).zfill(2)}-{str(NUM_GVWY).zfill(2)}-{str(NUM_SHVR).zfill(2)}-{str(NUM_DTR).zfill(2)}.csv"
             )
+
+            s3 = boto3.client("s3",
+                aws_access_key_id = "ASIA3MJWW2UGRG5OQKNP",
+                aws_secret_access_key = "JSnujlrI52NtJkw2VDxBlfctlr83K7NkOVHZha/4",
+                aws_session_token = "FwoGZXIvYXdzEN3//////////wEaDJ81Zjp1nkXFV4vPtyLGASxd+p1sQJ68k1Dx/R8CQ7sGoWCRk/5kpIRWLNqzdSsdq4m5ICzbMoaTFRFT95bDTVogGRaCu4n1hSOCkmbLqW0CwRE2HeR3FCAA6jX3dYnuZ6WwLGbvW+Gyjac5L6E1c1d+gs5/cEGIu4Wk2WZkbQ3b1Sj+ixssnfvGf9v7aIH4u6XaEvK44Jd7aFNiPYyFR4aqBYrDZOrw9bSQoS3SdhfyTlBhX4iQBKoL4ksjHyC2L5kFXbv20uee7l9OPACrKz0MAbTN4CjAheigBjIt58p86zjEqAdbFdDirhPLobp8VXHlf/dmnBsQzJtUHxY4hWR1H3o/QKZiFGhV"
+            )
+
             with open(file_name, "w", encoding="utf-8") as tdump:
-                for _ in range(0, config.numSchedulesPerRatio):
+                for _ in range(0, src.config.numSchedulesPerRatio):
                     order_sched = get_order_schedule()
 
                     buyers_spec = [
@@ -924,15 +936,16 @@ if __name__ == "__main__":
                         print("WARNING: Too many traders can cause unstable behaviour.")
 
                     trial = 1
-                    dump_all = True
-                    while trial <= config.numTrialsPerSchedule:
+                    dump_all = False
+
+                    while trial <= src.config.numTrialsPerSchedule:
                         trial_id = f"trial{str(trial_number).zfill(7)}"
                         start_session_event = threading.Event()
                         try:
                             NUM_THREADS = market_session(
                                 trial_id,
-                                config.sessionLength,
-                                config.virtualSessionLength,
+                                src.config.sessionLength,
+                                src.config.virtualSessionLength,
                                 traders_spec,
                                 order_sched,
                                 start_session_event,

@@ -87,14 +87,13 @@ def pickle_s3_files(pkl_path):
     loading_bar = ShadyBar("Pickling Data")
 
     # Set the S3 bucket and prefix
-    bucket_name = "my-bucket"
-    prefix = "output/"
+    bucket_name = "output-data-fz19792"
 
     # Initialize the S3 client
     s3 = boto3.client("s3")
 
     # List the objects in the bucket with the given prefix
-    response = s3.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
+    response = s3.list_objects_v2(Bucket=bucket_name)
 
     df_list = []
     for obj in response["Contents"]:

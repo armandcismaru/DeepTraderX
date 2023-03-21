@@ -3,7 +3,7 @@ kind: Job
 metadata:
   name: market-simulations
 spec:
-  completions: 32
+  completions: 1
   parallelism: 32
   template:
     metadata:
@@ -11,8 +11,7 @@ spec:
     spec:
       containers:
       - name: market-simulations
-        image: your-image-name
-        command: ["python3", "deep_trader_tbse/tbse.py", "s3://my-bucket/markets.csv"]
+        image: armandcismaru/deeptrader:deeptrader-tbse
         env:
         - name: AWS_ACCESS_KEY_ID
           valueFrom:

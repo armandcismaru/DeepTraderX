@@ -60,7 +60,7 @@ class NeuralNetwork:
     @staticmethod
     def load_network(filename):
         # path directory variables
-        path = "./deep_trader/Models/" + filename + "/"
+        path = "./src/deep_trader/Models/" + filename + "/"
         file = path + filename
 
         # load json and create model
@@ -78,7 +78,7 @@ class NeuralNetwork:
     @staticmethod
     def normalization_values(filename):
         # path directory variables
-        path = "./deep_trader/Models/" + filename + "/"
+        path = "./src/deep_trader/Models/" + filename + "/"
         file = path + filename
 
         # values used to normalize training data

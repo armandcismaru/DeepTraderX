@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deeptrader-deployment
+spec:
+  replicas: 32
+  selector:
+    matchLabels:
+      app: deeptrader
+  template:
+    metadata:
+      labels:
+        app: deeptrader
+    spec:
+      containers:
+      - name: deeptrader
+        image: armandcismaru/deeptrader:deeptrader-tbse
+        ports:
+        - containerPort: 8000
+        resources:
+          limits:
+            cpu: "2"
+            memory: 4Gi
+          requests:
+            cpu: "1"
+            memory: 2Gi

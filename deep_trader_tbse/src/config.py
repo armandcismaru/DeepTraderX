@@ -26,7 +26,7 @@ useOffset = True  # Use an offset function to vary equilibrium price, this is di
 useInputFile = (
     True  # Use an input file to define order schedule (e.g. Real World Trading data)
 )
-input_file = "tbse/RWD/IBM-310817.csv"  # Path to real world data input file
+input_file = "src/tbse/RWD/IBM-310817.csv"  # Path to real world data input file
 stepmode = "fixed"  # Valid values: 'fixed', 'jittered', 'random'
 timemode = (
     "periodic"  # Valid values: 'periodic', 'drip-fixed', 'drip-jitter', 'drip-poisson'
