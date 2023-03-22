@@ -974,7 +974,7 @@ if __name__ == "__main__":
                         tdump.flush()
                         trial = trial + 1
                         trial_number = trial_number + 1
-            os.remove(file_name)  
+            os.remove(file_name)
 
         sys.exit("Done Now")
 
