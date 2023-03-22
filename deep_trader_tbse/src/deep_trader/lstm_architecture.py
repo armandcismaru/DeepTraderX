@@ -3,7 +3,6 @@
 Module containing the architecture class of the model.
 """
 
-import os
 import sys
 import numpy as np
 from keras.optimizers import Adam
@@ -12,8 +11,6 @@ from keras.layers import LSTM
 from keras.models import Sequential
 from .neural_network import NeuralNetwork
 from .data_generator import DataGenerator
-
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
 class Multivariate_LSTM(NeuralNetwork):
@@ -82,6 +79,6 @@ if __name__ == "__main__":
     NUMBER_OF_FEATURES = 13
     NUMBER_OF_STEPS = 1
     mv = Multivariate_LSTM(
-        (BATCHSIZE, NUMBER_OF_STEPS, NUMBER_OF_FEATURES), "DeepTrader1_6"
+        (BATCHSIZE, NUMBER_OF_STEPS, NUMBER_OF_FEATURES), "DeepTrader2_0"
     )
     mv.create_model()

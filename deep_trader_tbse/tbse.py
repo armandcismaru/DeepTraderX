@@ -423,7 +423,7 @@ def market_session(
 
     lob_file_name = str(time.time())
     if lob_out:
-        data_file = open(lob_file_name + ".csv", "w", encoding="utf-8")
+        data_file = open(f"{lob_file_name}.csv", "w", encoding="utf-8")
 
     # create threads and queues for traders
     for i in range(0, len(traders)):
@@ -910,9 +910,9 @@ if __name__ == "__main__":
             # pylint: disable=line-too-long
             s3 = boto3.client(
                 "s3",
-                aws_access_key_id="ASIA3MJWW2UGRG5OQKNP",
-                aws_secret_access_key="JSnujlrI52NtJkw2VDxBlfctlr83K7NkOVHZha/4",
-                aws_session_token="FwoGZXIvYXdzEN3//////////wEaDJ81Zjp1nkXFV4vPtyLGASxd+p1sQJ68k1Dx/R8CQ7sGoWCRk/5kpIRWLNqzdSsdq4m5ICzbMoaTFRFT95bDTVogGRaCu4n1hSOCkmbLqW0CwRE2HeR3FCAA6jX3dYnuZ6WwLGbvW+Gyjac5L6E1c1d+gs5/cEGIu4Wk2WZkbQ3b1Sj+ixssnfvGf9v7aIH4u6XaEvK44Jd7aFNiPYyFR4aqBYrDZOrw9bSQoS3SdhfyTlBhX4iQBKoL4ksjHyC2L5kFXbv20uee7l9OPACrKz0MAbTN4CjAheigBjIt58p86zjEqAdbFdDirhPLobp8VXHlf/dmnBsQzJtUHxY4hWR1H3o/QKZiFGhV",
+                aws_access_key_id="ASIA3MJWW2UGR7SHMX3V",
+                aws_secret_access_key="hFOjtdUIfVCzaLCtrACoLM8Jf6qaZxdVkeI/iFyd",
+                aws_session_token="FwoGZXIvYXdzEO7//////////wEaDG5ZrAmSxvzLlq/IbiLGAa3SthfyqkC+jtwjs/gCSxutFFnfwJrYUmTrMc6cG8AdYd4+St9sBV06AuZsp/v8BctGVGtRU1SAZBWbGyX4aLR0shuQhCU7qG+LwTPbt3P++zIzco9cK+tnKFoWdE1+bTlRw6DYiHoSCXuxVJkumbKwuN8M8Wcr+zHRGL3/I17VoXv7g5hfJSZDyBoUhqKSCAOuDezr4MhMxEIUOqoCwozOu2Y/j8/d5oUoBLWxzKHbvSdHX13f38SrLGICewPeJUJfXOaIYiiX5uugBjItlRzVFX5AFNQUZP3B66skiX2T6bLK2QawdtMrnSxvALTErP43aPLcDhvf0mC2",
             )
 
             with open(file_name, "w", encoding="utf-8") as tdump:
@@ -974,6 +974,7 @@ if __name__ == "__main__":
                         tdump.flush()
                         trial = trial + 1
                         trial_number = trial_number + 1
+            os.remove(file_name)  
 
         sys.exit("Done Now")
 

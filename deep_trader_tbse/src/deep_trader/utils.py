@@ -72,8 +72,8 @@ def pickle_files(pkl_path, no_files):
 
             with open(pkl_path, "ab") as fileobj:
                 pickle.dump(file_list, fileobj)
-        except FileNotFoundError:
-            pass
+        except FileNotFoundError as e:
+            print(e)
 
         loading_bar.next()
     loading_bar.finish()
@@ -84,8 +84,6 @@ def pickle_s3_files(pkl_path):
     Pickle the data from csv files to a single file.
     """
 
-    loading_bar = ShadyBar("Pickling Data")
-
     # Set the S3 bucket and prefix
     bucket_name = "output-data-fz19792"
 
@@ -94,22 +92,22 @@ def pickle_s3_files(pkl_path):
 
     # List the objects in the bucket with the given prefix
     response = s3.list_objects_v2(Bucket=bucket_name)
+    loading_bar = ShadyBar("Pickling Data", max=len(response["Contents"]))
 
-    df_list = []
+    file_list = []
     for obj in response["Contents"]:
         if obj["Key"].endswith(".csv"):
             csv_obj = s3.get_object(Bucket=bucket_name, Key=obj["Key"])
             csv_body = csv_obj["Body"].read().decode("utf-8")
-            df = pd.read_csv(io.StringIO(csv_body))
-            df_list.append(df)
+            f_data = csv.reader(io.StringIO(csv_body))
+            for row in f_data:
+                file_list.append(row)
         loading_bar.next()
 
     loading_bar.finish()
 
-    combined_df = pd.concat(df_list)
-
     with open(pkl_path, "ab") as fileobj:
-        pickle.dumps(combined_df, fileobj)
+        pickle.dump(file_list, fileobj)
 
 
 # pylint: disable=invalid-name
@@ -126,31 +124,31 @@ def normalize_data(X, max_values=0, min_values=0, train=True):
     return normalized
 
 
-def normalize_train():
+def normalize_train(data_path):
     """
     Normalize the data in the train_data.pkl file.
     """
 
-    pkl_path = "normalized_data.pkl"
+    pkl_path = "deep_trader_tbse/src/deep_trader/normalized_data.pkl"
     os.system("touch " + pkl_path)
-    with open("train_data.pkl", "rb") as fileobj:
+    with open(data_path, "rb") as f:
         while 1:
             try:
-                file = np.array(pickle.load(fileobj)).astype(float)
+                file = np.array(pickle.load(f)).astype(float)
                 if file.shape[0] == 0:
                     continue
                 for i, _ in enumerate(MAX_VALUES):
                     file[:, i] = normalize_data(
-                        file[:, i], MAX_VALUES[i], MAX_VALUES[i], False
+                        file[:, i], MAX_VALUES[i], MIN_VALUES[i], False
                     )
 
-                with open(pkl_path, "ab", encoding="utf-8") as fileobj:
+                with open(pkl_path, "ab") as fileobj:
                     pickle.dump(file, fileobj)
 
             except EOFError:
                 break  # no more data in the file
-            except ValueError:
-                pass
+            except ValueError as e:
+                print(e)
 
 
 def read_data(no_files):
@@ -171,8 +169,8 @@ def read_data(no_files):
             X = np.vstack((X, X_file))
             y = np.vstack((y, y_file))
 
-        except FileNotFoundError:
-            print("Trial file not found!")
+        except FileNotFoundError as e:
+            print(e)
 
     return X, y
 
@@ -194,5 +192,6 @@ def split_train_test_data(data, ratio):
 
 
 if __name__ == "__main__":
-    pickle_s3_files("train_data.pkl")
-    normalize_train()
+    train_data_path = "deep_trader_tbse/src/deep_trader/train_data.pkl"
+    pickle_s3_files(train_data_path)
+    normalize_train(train_data_path)
