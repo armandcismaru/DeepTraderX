@@ -20,7 +20,7 @@ ec2 = boto3.client("ec2", region_name=region)
 ami_id = "ami-0557a15b87f6559cf"
 
 # Set the instance type
-instance_type = "m5.large"
+instance_type = "t2.medium"
 
 # Set the key pair name for SSH access
 key_name = "cloudlabkey"
@@ -107,26 +107,28 @@ try:
     # Set up kops environment variables
     os.environ["KOPS_STATE_STORE"] = "s3://my-kops-bucket-fz19792"
     os.environ["AWS_REGION"] = region
-    os.environ["NAME"] = "cluster.testikod.in"
+    os.environ["NAME"] = "deeptradercluster.k8s.local"
     # os.system("export NAME=cluster.testikod.in")
 
-    reference = str(datetime.now())
-    r53_client = boto3.client("route53")
-    response = r53_client.create_hosted_zone(
-        Name="testikod.in",
-        CallerReference=reference,
-    )
+    # reference = str(datetime.now())
+    # r53_client = boto3.client("route53")
+    # response = r53_client.create_hosted_zone(
+    #     Name="testikod.in",
+    #     CallerReference=reference,
+    # )
+
+    # kubectl create secret generic aws-creds --from-literal=AWS_ACCESS_KEY_ID=ASIA3MJWW2UGV3PJGQEH --from-literal=AWS_SECRET_ACCESS_KEY=4C6f30F3X0Wm6K6YVZDa5XcDNft2WU+kmN+fEtZH --from-literal=AWS_SESSION_TOKEN=FwoGZXIvYXdzECEaDFwXIy8jznRQOHAKhiLGAQpMWW80e5peYFH/EU6Nu/iuozOSyWcFELyDL0+fYojj4cWK2bms4ranmBLfJ9iCHKrjA8bKTmYI85a+r+kuthkUuDRxnGhg6JJmIVYoK/rvtzUxlYY989/WGrDDRFEn70Ap1n42i0SySgBZ0IQMom2XMsDkrgsIBcsO/Df6nmxLGaKhhg2h2QyunfL/xVRB4rrxDv2HtAshdSTP9mMVooh5GBlXLZnAfo2TIh0XwVEEsjaibNY8opnnE6pKPEttkvW0wCPQUCjwj/egBjIthFkx+P4dNxaYwtgHQSNAdX3jDyFPB3vnSq23w3EOMm9/IRwTHnTXqabC8BWq
 
     # Create the Kubernetes cluster using kops
     os.system(
         f"kops create cluster \
-        --name cluster.testikod.in \
+        --name deeptradercluster.k8s.local \
         --cloud aws \
         --zones {region}a,{region}b,{region}c \
         --node-count {node_count} \
         --node-size {instance_type} \
-        --master-size t3.medium \
-        --dns-zone testikod.in \
+        --master-size m5.large \
+        --dns-zone deeptradercluster.k8s.local \
         --topology private \
         --networking calico \
         --out s3://output-data-fz19702 \

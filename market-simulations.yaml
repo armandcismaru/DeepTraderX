@@ -3,8 +3,8 @@ kind: Job
 metadata:
   name: market-simulations
 spec:
-  completions: 1
-  parallelism: 32
+  completions: 2
+  parallelism: 2
   template:
     metadata:
       name: market-simulations
@@ -12,20 +12,25 @@ spec:
       containers:
       - name: market-simulations
         image: armandcismaru/deeptrader:deeptrader-tbse
-        env:
-        - name: AWS_ACCESS_KEY_ID
-          valueFrom:
-            secretKeyRef:
-              name: aws-credentials
-              key: aws_access_key_id
-        - name: AWS_SECRET_ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: aws-credentials
-              key: aws_secret_access_key
+        # env:
+        # - name: AWS_ACCESS_KEY_ID
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: aws-credentials
+        #       key: aws_access_key_id
+        # - name: AWS_SECRET_ACCESS_KEY
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: aws-credentials
+        #       key: aws_secret_access_key
+        # - name: AWS_SESSION_TOKEN
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: aws-credentials
+        #       key: aws_session_token
       restartPolicy: Never
-      volumes:
-      - name: aws-secret
-        secret:
-          secretName: aws-credentials
+      # volumes:
+      # - name: aws-creds
+      #   secret:
+      #     secretName: aws-creds
   backoffLimit: 4

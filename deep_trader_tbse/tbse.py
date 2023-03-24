@@ -384,6 +384,7 @@ def market_session(
     verbose,
     dumpfile,
     dump_data,
+    schedule_n=0,
     lob_out=True,
 ):
     """
@@ -421,7 +422,7 @@ def market_session(
     trader_qs = []
     trader_stats = populate_market(trader_spec, traders, True, verbose)
 
-    lob_file_name = str(time.time())
+    lob_file_name = str(schedule_n) + "-" + str(time.time())
     if lob_out:
         data_file = open(f"{lob_file_name}.csv", "w", encoding="utf-8")
 
@@ -865,7 +866,7 @@ if __name__ == "__main__":
             sys.exit()
 
         trial_number = 1
-        for ratio in ratios:
+        for no_of_schedule, ratio in enumerate(ratios):
             try:
                 NUM_ZIC = int(ratio[0])
                 NUM_ZIP = int(ratio[1])
@@ -908,12 +909,15 @@ if __name__ == "__main__":
             )
 
             # pylint: disable=line-too-long
-            s3 = boto3.client(
-                "s3",
-                aws_access_key_id="ASIA3MJWW2UGR7SHMX3V",
-                aws_secret_access_key="hFOjtdUIfVCzaLCtrACoLM8Jf6qaZxdVkeI/iFyd",
-                aws_session_token="FwoGZXIvYXdzEO7//////////wEaDG5ZrAmSxvzLlq/IbiLGAa3SthfyqkC+jtwjs/gCSxutFFnfwJrYUmTrMc6cG8AdYd4+St9sBV06AuZsp/v8BctGVGtRU1SAZBWbGyX4aLR0shuQhCU7qG+LwTPbt3P++zIzco9cK+tnKFoWdE1+bTlRw6DYiHoSCXuxVJkumbKwuN8M8Wcr+zHRGL3/I17VoXv7g5hfJSZDyBoUhqKSCAOuDezr4MhMxEIUOqoCwozOu2Y/j8/d5oUoBLWxzKHbvSdHX13f38SrLGICewPeJUJfXOaIYiiX5uugBjItlRzVFX5AFNQUZP3B66skiX2T6bLK2QawdtMrnSxvALTErP43aPLcDhvf0mC2",
-            )
+            try:
+                s3 = boto3.client(
+                    "s3",
+                    aws_access_key_id="ASIA3MJWW2UGV3PJGQEH",
+                    aws_secret_access_key="4C6f30F3X0Wm6K6YVZDa5XcDNft2WU+kmN+fEtZH",
+                    aws_session_token="FwoGZXIvYXdzECEaDFwXIy8jznRQOHAKhiLGAQpMWW80e5peYFH/EU6Nu/iuozOSyWcFELyDL0+fYojj4cWK2bms4ranmBLfJ9iCHKrjA8bKTmYI85a+r+kuthkUuDRxnGhg6JJmIVYoK/rvtzUxlYY989/WGrDDRFEn70Ap1n42i0SySgBZ0IQMom2XMsDkrgsIBcsO/Df6nmxLGaKhhg2h2QyunfL/xVRB4rrxDv2HtAshdSTP9mMVooh5GBlXLZnAfo2TIh0XwVEEsjaibNY8opnnE6pKPEttkvW0wCPQUCjwj/egBjIthFkx+P4dNxaYwtgHQSNAdX3jDyFPB3vnSq23w3EOMm9/IRwTHnTXqabC8BWq",
+                )
+            except Exception as e:  # pylint: disable=broad-except
+                print(e)
 
             with open(file_name, "w", encoding="utf-8") as tdump:
                 for _ in range(0, src.config.numSchedulesPerRatio):
@@ -958,6 +962,7 @@ if __name__ == "__main__":
                                 False,
                                 tdump,
                                 dump_all,
+                                no_of_schedule,
                             )
 
                             if NUM_THREADS != trader_count + 2:
