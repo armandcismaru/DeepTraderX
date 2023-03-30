@@ -487,9 +487,9 @@ def market_session(
     cuid = 0  # Customer order id
 
     while time.time() < (start_time + sess_length):
-        print(
-            f"Time: {time.time() - start_time} / {sess_length} ({(time.time() - start_time) / sess_length * 100}%)"
-        )
+        # print(
+        #     f"Time: {time.time() - start_time} / {sess_length} ({(time.time() - start_time) / sess_length * 100}%)"
+        # )
         virtual_time = (time.time() - start_time) * (virtual_end / sess_length)
         # distribute customer orders
         [pending_cust_orders, kills, cuid] = customer_orders(
@@ -912,9 +912,9 @@ if __name__ == "__main__":
             try:
                 s3 = boto3.client(
                     "s3",
-                    aws_access_key_id="ASIA3MJWW2UGV3PJGQEH",
-                    aws_secret_access_key="4C6f30F3X0Wm6K6YVZDa5XcDNft2WU+kmN+fEtZH",
-                    aws_session_token="FwoGZXIvYXdzECEaDFwXIy8jznRQOHAKhiLGAQpMWW80e5peYFH/EU6Nu/iuozOSyWcFELyDL0+fYojj4cWK2bms4ranmBLfJ9iCHKrjA8bKTmYI85a+r+kuthkUuDRxnGhg6JJmIVYoK/rvtzUxlYY989/WGrDDRFEn70Ap1n42i0SySgBZ0IQMom2XMsDkrgsIBcsO/Df6nmxLGaKhhg2h2QyunfL/xVRB4rrxDv2HtAshdSTP9mMVooh5GBlXLZnAfo2TIh0XwVEEsjaibNY8opnnE6pKPEttkvW0wCPQUCjwj/egBjIthFkx+P4dNxaYwtgHQSNAdX3jDyFPB3vnSq23w3EOMm9/IRwTHnTXqabC8BWq",
+                    aws_access_key_id="ASIA3MJWW2UGXQXDYO6K",
+                    aws_secret_access_key="faQqzXf6M+rmZ6Q563j7K2w2qlbk2XFlSbIoIiKI",
+                    aws_session_token="FwoGZXIvYXdzEE8aDPqi34ekX08Gg7Oh2yLGAfi12J6eY2Wz66hUEj86TPoRhQlAKiTQ+XOrBIrRq70lEDIHLFZl1jx08kjVWz+0Ol1BfQ/mzk3jM45U8YQWXIBz3E2aOXyyVDTc52Dt5Fecu6mwuMKjXF8z4u7fHe+Vqb3VRZsdGYlkzl2sA39wpQ9Ei8Su+RgzDenA6AwCHS791wst6/9/WcptamWnv73qcRnecYlFRanuW7RFsAOy/7hHnyOhpuydOWU3t4kPNLLYzyOq2q/iAwRBUnIXgHix5Nt9RSFTgCjWi4GhBjItpIdLOnReUC+S8YOUNAYJf1ZJFAGa99wISIFV9Pi/Xfd0rvaHz9Jd3AyFVtJR",
                 )
             except Exception as e:  # pylint: disable=broad-except
                 print(e)
