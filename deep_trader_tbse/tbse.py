@@ -912,9 +912,9 @@ if __name__ == "__main__":
             try:
                 s3 = boto3.client(
                     "s3",
-                    aws_access_key_id="ASIA3MJWW2UGXQXDYO6K",
-                    aws_secret_access_key="faQqzXf6M+rmZ6Q563j7K2w2qlbk2XFlSbIoIiKI",
-                    aws_session_token="FwoGZXIvYXdzEE8aDPqi34ekX08Gg7Oh2yLGAfi12J6eY2Wz66hUEj86TPoRhQlAKiTQ+XOrBIrRq70lEDIHLFZl1jx08kjVWz+0Ol1BfQ/mzk3jM45U8YQWXIBz3E2aOXyyVDTc52Dt5Fecu6mwuMKjXF8z4u7fHe+Vqb3VRZsdGYlkzl2sA39wpQ9Ei8Su+RgzDenA6AwCHS791wst6/9/WcptamWnv73qcRnecYlFRanuW7RFsAOy/7hHnyOhpuydOWU3t4kPNLLYzyOq2q/iAwRBUnIXgHix5Nt9RSFTgCjWi4GhBjItpIdLOnReUC+S8YOUNAYJf1ZJFAGa99wISIFV9Pi/Xfd0rvaHz9Jd3AyFVtJR",
+                    aws_access_key_id="ASIAV4Y55ZUXIL7BTUF5",
+                    aws_secret_access_key="XVnsxKdQQQVwd0WIk8BaKVE/zUs91mXLrI8M/hwY",
+                    aws_session_token="FwoGZXIvYXdzEMf//////////wEaDAhGdBQVWphj0NBCdCLGAT4wIEuRgQGkRfyv8dSFBJzLvyTZFSPCqQ/8X/9FGBVrCwxyRLK7scvAtOsccfsvPGBurLSlaXBGRoLDw5RgXLf9NlNrH3Cf1l7AfVHmzRRUKV2a2+53ZEvCx7AgZpPH28HBtMxe0XVmPt83DHPUCpJMIvzdN6ELwM7Ak7cYuons6sPe2oznzaw+YGFLfwojHiMpO9LRYc9s8WdJOYBCzn+gqSuKyh8YxAOM/3/YHiHFhKb4KS2JeoRA7rMq1w3LFQ6h9flxnSjvu5uhBjItMLr6/6+7T4qzn1fYnYUn3U6hf6U0GKKa9Nzs/bgY/5Qy0EnIn+rD6QFJpU3q",
                 )
             except Exception as e:  # pylint: disable=broad-except
                 print(e)

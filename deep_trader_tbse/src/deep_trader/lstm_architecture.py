@@ -5,6 +5,7 @@ Module containing the architecture class of the model.
 
 import sys
 import numpy as np
+import matplotlib.pyplot as plt
 from keras.optimizers import Adam
 from keras.layers import Dense
 from keras.layers import LSTM
@@ -57,8 +58,16 @@ class Multivariate_LSTM(NeuralNetwork):
         self.max_vals = train_data.train_max
         self.min_vals = train_data.train_min
 
-        self.model.fit(train_data, epochs=20, verbose=1, workers=16)
+        history = self.model.fit(train_data, epochs=20, verbose=1, workers=16)
         self.save()
+
+        plt.plot(history.history["loss"])
+        plt.plot(history.history["val_loss"])
+        plt.title("model loss")
+        plt.ylabel("loss")
+        plt.xlabel("epoch")
+        plt.legend(["train", "val"], loc="upper left")
+        plt.savefig("loss_curve.png")
 
         # tf.keras.utils.plot_model(
         #     self.model,

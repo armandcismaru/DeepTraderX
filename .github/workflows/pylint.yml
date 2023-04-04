@@ -19,6 +19,7 @@ jobs:
         pip install boto3
         pip install pylint
         pip install numpy
+        pip install matplotlib
         pip install keras
         pip install progress
         pip install pandas

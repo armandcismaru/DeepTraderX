@@ -1,4 +1,4 @@
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name,too-many-locals,broad-exception-caught
 """
 Utiliy to pickle the data from csv files to a single file.
 """
@@ -13,36 +13,36 @@ import boto3
 from progress.bar import ShadyBar
 
 MAX_VALUES = [
-    3.6e3,
-    1.0000000e00,
-    2.2400000e02,
-    6.0950000e02,
-    9.4987500e02,
-    1.0000000e00,
-    1.1130000e03,
-    2.2200000e02,
-    1.1130000e03,
-    2.3550000e01,
-    6.7000000e01,
-    7.8813584e01,
-    1.9753013e02,
-    2.2400000e02,
+    3612.903986,
+    1.0,
+    275.0,
+    373.5,
+    472.153846,
+    1.0,
+    500.0,
+    267.0,
+    500.0,
+    589.662766,
+    38.0,
+    79.218286,
+    275.0,
+    275.0,
 ]
 
 MIN_VALUES = [
-    0.00000000e000,
-    0.00000000e000,
+    30.232129,
     0.0,
-    0.00000000e000,
-    0.00000000e000,
-    -1.00000000e000,
-    0.00000000e000,
-    0.00000000e000,
-    0.00000000e000,
-    0.00000000e000,
-    0.00000000e000,
-    0.00000000e000,
-    0.00000000e000,
+    1.0,
+    0.0,
+    0.0,
+    -1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.00834,
+    0.0,
+    0.0,
+    30.709072,
     1.0,
 ]
 
@@ -90,21 +90,32 @@ def pickle_s3_files(pkl_path):
     # Initialize the S3 client
     s3 = boto3.client("s3")
 
-    # List the objects in the bucket with the given prefix
-    response = s3.list_objects_v2(Bucket=bucket_name)
-    loading_bar = ShadyBar("Pickling Data", max=len(response["Contents"]))
+    # Get the list of objects
+    paginator = s3.get_paginator("list_objects_v2")
+
+    # Get the number of pages of objects
+    pages = paginator.paginate(Bucket=bucket_name)
+
+    no_objects = 0
+    for page in pages:
+        no_objects += len(page["Contents"])
+    loading_bar = ShadyBar("Pickling Data", max=no_objects)
 
     file_list = []
-    for obj in response["Contents"]:
-        if obj["Key"].endswith(".csv"):
-            csv_obj = s3.get_object(Bucket=bucket_name, Key=obj["Key"])
-            csv_body = csv_obj["Body"].read().decode("utf-8")
-            f_data = csv.reader(io.StringIO(csv_body))
-            for row in f_data:
-                file_list.append(row)
-        loading_bar.next()
-
-    loading_bar.finish()
+    pages = paginator.paginate(Bucket=bucket_name)
+    try:
+        for page in pages:
+            for obj in page["Contents"]:
+                if obj["Key"].endswith(".csv"):
+                    csv_obj = s3.get_object(Bucket=bucket_name, Key=obj["Key"])
+                    csv_body = csv_obj["Body"].read().decode("utf-8")
+                    f_data = csv.reader(io.StringIO(csv_body))
+                    for row in f_data:
+                        file_list.append(row)
+                loading_bar.next()
+        loading_bar.finish()
+    except Exception as e:
+        print(e)
 
     with open(pkl_path, "ab") as fileobj:
         pickle.dump(file_list, fileobj)
@@ -129,7 +140,7 @@ def normalize_train(data_path):
     Normalize the data in the train_data.pkl file.
     """
 
-    pkl_path = "deep_trader_tbse/src/deep_trader/normalized_data.pkl"
+    pkl_path = "normalized_data.pkl"
     os.system("touch " + pkl_path)
     with open(data_path, "rb") as f:
         while 1:
@@ -192,6 +203,6 @@ def split_train_test_data(data, ratio):
 
 
 if __name__ == "__main__":
-    train_data_path = "deep_trader_tbse/src/deep_trader/train_data.pkl"
+    train_data_path = "train_data.pkl"
     pickle_s3_files(train_data_path)
     normalize_train(train_data_path)

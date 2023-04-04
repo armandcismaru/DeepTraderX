@@ -11,7 +11,7 @@ import boto3
 from botocore.exceptions import ClientError
 
 # Define the region where you want to create the EC2 instances
-region = "us-east-1"
+region = "us-west-2"
 
 # Create an EC2 client object
 ec2 = boto3.client("ec2", region_name=region)
@@ -30,10 +30,10 @@ key_name = "cloudlabkey"
 security_group_id = "sg-0bb6339735da07a9a"
 
 try:
-    s3 = boto3.resource("s3")
-    s3.create_bucket(Bucket="my-kops-bucket-fz19792")
-    s3.create_bucket(Bucket="input-data-fz19792")
-    s3.create_bucket(Bucket="output-data-fz19792")
+    # s3 = boto3.resource("s3")
+    # s3.create_bucket(Bucket="my-kops-bucket-fz19792")
+    # s3.create_bucket(Bucket="input-data-fz19792")
+    # s3.create_bucket(Bucket="output-data-fz19792")
 
     # s3_client = boto3.client("s3")
     # try:
@@ -64,6 +64,7 @@ try:
     pip install boto3
     pip install numpy
     pip install keras
+    pip install matplotlib
     pip install progress
     pip install pandas
     """
@@ -74,6 +75,8 @@ try:
 
     # docker build -t armandcismaru/deeptrader:deeptrader-tbse .
     # docker push/pull/run armandcismaru/deeptrader:deeptrader-tbse
+
+    # kubectl apply -f market-simulations.yaml
 
     node_count = 1
     # Create the EC2 instances

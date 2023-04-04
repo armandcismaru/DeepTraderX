@@ -33,4 +33,4 @@ spec:
       # - name: aws-creds
       #   secret:
       #     secretName: aws-creds
-  backoffLimit: 4
+  backoffLimit: 9

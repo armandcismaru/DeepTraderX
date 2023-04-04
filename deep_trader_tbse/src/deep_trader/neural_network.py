@@ -100,15 +100,9 @@ class NeuralNetwork:
 
         n_features = 13
         X, y = read_data(no_files)
-        max_values, min_values = NeuralNetwork.normalization_values("DeepTrader1_6")
+        max_values, min_values = NeuralNetwork.normalization_values("DeepTrader2_0")
 
-        # split_ratio = [9, 1]
-        # train_X, test_X = split_train_test_data(X, split_ratio)
-        # train_X = train_X.reshape((-1, 1, 1))
-        # test_X = test_X.reshape((-1, 1, 1))
-        # _ , test_y = split_train_test_data(y, split_ratio)
-
-        model = NeuralNetwork.load_network("DeepTrader1_6")
+        model = NeuralNetwork.load_network("DeepTrader2_0")
         for i in range(X.shape[0]):
             normalized_input = (X[i] - min_values[:n_features]) / (
                 max_values[:n_features] - min_values[:n_features]
