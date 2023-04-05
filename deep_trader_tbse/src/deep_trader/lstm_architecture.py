@@ -35,10 +35,15 @@ class Multivariate_LSTM(NeuralNetwork):
         self.batch_size = input_shape[0]
         self.max_vals = None
         self.min_vals = None
-        
+
         # architecture
         self.model.add(
-            LSTM(10, activation="relu", input_shape=(input_shape[1], input_shape[2]), unroll=True)
+            LSTM(
+                10,
+                activation="relu",
+                input_shape=(input_shape[1], input_shape[2]),
+                unroll=True,
+            )
         )
         self.model.add(Dense(5, activation="relu"))
         self.model.add(Dense(3, activation="relu"))
