@@ -14,7 +14,6 @@ class DataGenerator(Sequence):
         """Initialization."""
 
         self.no_items = 0
-        self.files = 0
         self.dataset_path = dataset_path
         with open(self.dataset_path, "rb") as f:
             while 1:
@@ -56,7 +55,6 @@ class DataGenerator(Sequence):
                         if count in indexes:
                             x[i,] = np.reshape(item[: self.n_features], (1, -1))
                             y[i,] = np.reshape(item[self.n_features], (1, 1))
-
                         count += 1
                         i += 1
                         if i > self.batch_size - 1:
@@ -65,7 +63,7 @@ class DataGenerator(Sequence):
 
                 except EOFError:
                     break  # no more data in the file
-            return None
+            # return None
 
     def __len__(self):
         return self.no_items // self.batch_size

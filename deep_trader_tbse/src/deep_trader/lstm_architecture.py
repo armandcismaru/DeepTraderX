@@ -10,8 +10,8 @@ from keras.optimizers import Adam
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.models import Sequential
-from .neural_network import NeuralNetwork
-from .data_generator import DataGenerator
+from neural_network import NeuralNetwork
+from data_generator import DataGenerator
 
 
 class Multivariate_LSTM(NeuralNetwork):
@@ -34,7 +34,7 @@ class Multivariate_LSTM(NeuralNetwork):
         self.batch_size = input_shape[0]
         self.max_vals = None
         self.min_vals = None
-
+        
         # architecture
         self.model.add(
             LSTM(10, activation="relu", input_shape=(input_shape[1], input_shape[2]))
@@ -58,15 +58,14 @@ class Multivariate_LSTM(NeuralNetwork):
         self.max_vals = train_data.train_max
         self.min_vals = train_data.train_min
 
-        history = self.model.fit(train_data, epochs=20, verbose=1, workers=16)
+        history = self.model.fit(train_data, epochs=8, verbose=1, workers=8)
         self.save()
 
         plt.plot(history.history["loss"])
-        plt.plot(history.history["val_loss"])
         plt.title("model loss")
         plt.ylabel("loss")
         plt.xlabel("epoch")
-        plt.legend(["train", "val"], loc="upper left")
+        plt.legend("train", loc="upper left")
         plt.savefig("loss_curve.png")
 
         # tf.keras.utils.plot_model(
@@ -84,7 +83,7 @@ if __name__ == "__main__":
     np.set_printoptions(threshold=sys.maxsize)
 
     # multivariate LSTM
-    BATCHSIZE = 1638
+    BATCHSIZE = 32768
     NUMBER_OF_FEATURES = 13
     NUMBER_OF_STEPS = 1
     mv = Multivariate_LSTM(

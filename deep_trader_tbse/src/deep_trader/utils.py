@@ -7,6 +7,7 @@ import os
 import csv
 import io
 import pickle
+import sys
 import numpy as np
 import pandas as pd
 import boto3
@@ -78,6 +79,14 @@ def pickle_files(pkl_path, no_files):
         loading_bar.next()
     loading_bar.finish()
 
+def progressBar(count_value, total, suffix=''):
+    bar_length = 100
+    filled_up_Length = int(round(bar_length* count_value / float(total)))
+    percentage = round(100.0 * count_value/float(total),1)
+    bar = '=' * filled_up_Length + '-' * (bar_length - filled_up_Length)
+    sys.stdout.write('[%s] %s%s ...%s\r' %(bar, percentage, '%', suffix))
+    sys.stdout.flush()
+
 
 def pickle_s3_files(pkl_path):
     """
@@ -99,26 +108,27 @@ def pickle_s3_files(pkl_path):
     no_objects = 0
     for page in pages:
         no_objects += len(page["Contents"])
-    loading_bar = ShadyBar("Pickling Data", max=no_objects)
 
-    file_list = []
     pages = paginator.paginate(Bucket=bucket_name)
+    count = 0
     try:
         for page in pages:
             for obj in page["Contents"]:
+                file_list = []
                 if obj["Key"].endswith(".csv"):
                     csv_obj = s3.get_object(Bucket=bucket_name, Key=obj["Key"])
                     csv_body = csv_obj["Body"].read().decode("utf-8")
                     f_data = csv.reader(io.StringIO(csv_body))
+
                     for row in f_data:
                         file_list.append(row)
-                loading_bar.next()
-        loading_bar.finish()
+                    count += 1
+                    progressBar(count, no_objects)
+
+                with open(pkl_path, "ab") as fileobj:
+                    pickle.dump(file_list, fileobj)  
     except Exception as e:
         print(e)
-
-    with open(pkl_path, "ab") as fileobj:
-        pickle.dump(file_list, fileobj)
 
 
 # pylint: disable=invalid-name
