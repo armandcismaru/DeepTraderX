@@ -1,4 +1,4 @@
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name,E0401
 """
 Module containing the base class for neural networks.
 """
@@ -10,16 +10,16 @@ from keras.models import model_from_json
 from utils import MAX_VALUES, MIN_VALUES, read_data
 
 
-# pylint: disable=invalid-name,missing-function-docstring,no-member
+# pylint: disable=invalid-name,no-member
 class NeuralNetwork:
-    """
-    Base class for neural networks.
-    """
+    """Base class for neural networks."""
 
     def __init__(self):
         pass
 
     def save(self):
+        """Save the model to disk."""
+
         # create new directory if not already there
         path = "./Models/" + self.filename + "/"
         file = path + self.filename
@@ -59,6 +59,8 @@ class NeuralNetwork:
 
     @staticmethod
     def load_network(filename):
+        """Load network from disk."""
+
         # path directory variables
         path = "./src/deep_trader/Models/" + filename + "/"
         file = path + filename
@@ -77,6 +79,8 @@ class NeuralNetwork:
 
     @staticmethod
     def normalization_values(filename):
+        """Load normalization values from CSV file."""
+
         # path directory variables
         path = "./src/deep_trader/Models/" + filename + "/"
         file = path + filename
@@ -94,9 +98,7 @@ class NeuralNetwork:
 
     @staticmethod
     def test_models(no_files):
-        """
-        Test the models.
-        """
+        """Test the models."""
 
         n_features = 13
         X, y = read_data(no_files)

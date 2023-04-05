@@ -6,7 +6,7 @@ import numpy as np
 from keras.utils import Sequence
 
 
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name,R1710
 class DataGenerator(Sequence):
     """Generates data for the neural network."""
 
@@ -61,9 +61,9 @@ class DataGenerator(Sequence):
                             i = 0
                             return (x, y)
 
-                except EOFError:
+                except EOFError as e:
+                    print(e)
                     break  # no more data in the file
-            # return None
 
     def __len__(self):
         return self.no_items // self.batch_size

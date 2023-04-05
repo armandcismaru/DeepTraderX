@@ -1,4 +1,4 @@
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name,too-few-public-methods,E0401
 """
 Module containing the architecture class of the model.
 """
@@ -12,6 +12,7 @@ from keras.layers import LSTM
 from keras.models import Sequential
 from neural_network import NeuralNetwork
 from data_generator import DataGenerator
+from utils import BATCHSIZE, NUMBER_OF_FEATURES, NUMBER_OF_STEPS
 
 
 class Multivariate_LSTM(NeuralNetwork):
@@ -37,7 +38,7 @@ class Multivariate_LSTM(NeuralNetwork):
         
         # architecture
         self.model.add(
-            LSTM(10, activation="relu", input_shape=(input_shape[1], input_shape[2]))
+            LSTM(10, activation="relu", input_shape=(input_shape[1], input_shape[2]), unroll=True)
         )
         self.model.add(Dense(5, activation="relu"))
         self.model.add(Dense(3, activation="relu"))
@@ -58,14 +59,15 @@ class Multivariate_LSTM(NeuralNetwork):
         self.max_vals = train_data.train_max
         self.min_vals = train_data.train_min
 
-        history = self.model.fit(train_data, epochs=8, verbose=1, workers=8)
+        history = self.model.fit(train_data, epochs=20, verbose=1, workers=28)
         self.save()
 
         plt.plot(history.history["loss"])
-        plt.title("model loss")
-        plt.ylabel("loss")
-        plt.xlabel("epoch")
-        plt.legend("train", loc="upper left")
+        plt.title("Model loss/cost")
+        plt.ylabel("Loss")
+        plt.xlabel("Epoch")
+        plt.xticks(np.arange(0, 22, 2))
+        plt.legend(["Train"], loc="upper left")
         plt.savefig("loss_curve.png")
 
         # tf.keras.utils.plot_model(
@@ -82,11 +84,8 @@ class Multivariate_LSTM(NeuralNetwork):
 if __name__ == "__main__":
     np.set_printoptions(threshold=sys.maxsize)
 
-    # multivariate LSTM
-    BATCHSIZE = 32768
-    NUMBER_OF_FEATURES = 13
-    NUMBER_OF_STEPS = 1
+    # Multivariate LSTM
     mv = Multivariate_LSTM(
-        (BATCHSIZE, NUMBER_OF_STEPS, NUMBER_OF_FEATURES), "DeepTrader2_0"
+        (BATCHSIZE, NUMBER_OF_STEPS, NUMBER_OF_FEATURES), "DeepTrader2_1"
     )
     mv.create_model()
