@@ -6,7 +6,7 @@ import numpy as np
 from keras.utils import Sequence
 
 
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name,R1710
 class DataGenerator(Sequence):
     """Generates data for the neural network."""
 
