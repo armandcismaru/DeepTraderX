@@ -14,7 +14,6 @@ class DataGenerator(Sequence):
         """Initialization."""
 
         self.no_items = 0
-        self.files = 0
         self.dataset_path = dataset_path
         with open(self.dataset_path, "rb") as f:
             while 1:
@@ -63,9 +62,9 @@ class DataGenerator(Sequence):
                             i = 0
                             return (x, y)
 
-                except EOFError:
+                except EOFError as e:
+                    print(e)
                     break  # no more data in the file
-            return None
 
     def __len__(self):
         return self.no_items // self.batch_size
