@@ -1,4 +1,4 @@
-# pylint: disable=missing-function-docstring
+# pylint: disable=missing-function-docstring,import-error
 """Test GPU versus CPU speeds on Tensorflow."""
 
 import timeit
