@@ -62,7 +62,7 @@ numTrials = 1
 
 # For multiple schedules: using input csv file.
 numSchedulesPerRatio = 1  # Number of schedules per ratio of traders in csv file.
-numTrialsPerSchedule = 1  # Number of trials per schedule.
+numTrialsPerSchedule = 5  # Number of trials per schedule.
 symmetric = True  # Should range of supply = range of demand?
 
 
