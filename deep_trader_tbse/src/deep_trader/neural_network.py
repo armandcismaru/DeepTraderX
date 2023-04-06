@@ -7,7 +7,7 @@ import os
 import csv
 import numpy as np
 from keras.models import model_from_json
-from utils import MAX_VALUES, MIN_VALUES, read_data
+from .utils import MAX_VALUES, MIN_VALUES, read_data
 
 
 # pylint: disable=invalid-name,no-member

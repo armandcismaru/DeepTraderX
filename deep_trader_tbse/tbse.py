@@ -164,7 +164,7 @@ def populate_market(trader_spec, traders, shuffle, verbose):
         if robot_type == "GDX":
             return TraderGdx("GDX", name, 0.00, 0)
         if robot_type == "DTR":
-            return DeepTrader("DTR", name, 0.00, 0, "DeepTrader1_6")
+            return DeepTrader("DTR", name, 0.00, 0, "DeepTrader2_1")
         sys.exit(f"FATAL: don't know robot type {robot_type}\n")
 
     def shuffle_traders(ttype_char, n, trader_list):
@@ -423,6 +423,7 @@ def market_session(
     trader_stats = populate_market(trader_spec, traders, True, verbose)
 
     lob_file_name = str(schedule_n) + "-" + str(time.time())
+    data_file = None
     if lob_out:
         data_file = open(f"{lob_file_name}.csv", "w", encoding="utf-8")
 
@@ -824,6 +825,8 @@ if __name__ == "__main__":
                         False,
                         tdump,
                         dump_all,
+                        0,
+                        False,
                     )
 
                     print(f"Trial {trial} complete, {NUM_THREADS} threads running.")
