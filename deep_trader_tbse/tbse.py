@@ -259,7 +259,7 @@ def run_exchange(
     """
     completed_coid = {}
     start_event.wait()
-    while start_event.isSet():
+    while start_event.is_set():
         virtual_time = (time.time() - start_time) * (virtual_end / sess_length)
 
         while kill_q.empty() is False:
@@ -334,7 +334,7 @@ def run_trader(
     """
     start_event.wait()
 
-    while start_event.isSet():
+    while start_event.is_set():
         time.sleep(0.01)
         virtual_time = (time.time() - start_time) * (virtual_end / sess_length)
         time_left = (virtual_end - virtual_time) / virtual_end
