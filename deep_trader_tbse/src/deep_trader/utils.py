@@ -39,14 +39,14 @@ MIN_VALUES = [
     0.0,
     0.0,
     0.0,
-    0.00834,
+    0.0,
     0.0,
     0.0,
     30.709072,
     1.0,
 ]
 
-BATCHSIZE = 32768
+BATCHSIZE = 16384
 NUMBER_OF_FEATURES = 13
 NUMBER_OF_STEPS = 1
 

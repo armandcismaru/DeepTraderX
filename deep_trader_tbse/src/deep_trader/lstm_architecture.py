@@ -91,6 +91,6 @@ if __name__ == "__main__":
 
     # Multivariate LSTM
     mv = Multivariate_LSTM(
-        (BATCHSIZE, NUMBER_OF_STEPS, NUMBER_OF_FEATURES), "DeepTrader2_1"
+        (BATCHSIZE, NUMBER_OF_STEPS, NUMBER_OF_FEATURES), "DeepTrader2_2"
     )
     mv.create_model()
