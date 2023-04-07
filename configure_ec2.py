@@ -65,7 +65,6 @@ try:
     pip install numpy
     pip install keras
     pip install matplotlib
-    pip install progress
     pip install pandas
     """
 
