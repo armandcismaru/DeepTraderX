@@ -332,7 +332,7 @@ class DeepTrader(Trader):
             ) + self.min_vals[self.n_features]
             model_price = int(round(denormalized_output, 0))
 
-            print("Predicted price:", model_price, "Limit:", self.limit, "Type:", self.otype)
+            # print("Predicted price:", model_price, "Limit:", self.limit, "Type:", self.otype)
 
             if self.otype == "Ask":
                 if model_price < self.limit:
