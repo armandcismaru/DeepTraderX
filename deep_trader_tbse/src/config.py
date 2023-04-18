@@ -58,7 +58,7 @@ demand = {
 }
 
 # For single schedule: using config trader schedule, or command-line trader schedule.
-numTrials = 10
+numTrials = 1
 
 # For multiple schedules: using input csv file.
 numSchedulesPerRatio = 1  # Number of schedules per ratio of traders in csv file.

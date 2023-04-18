@@ -1,4 +1,3 @@
-# pylint: disable=invalid-name
 """Generates data for feeding into the neural network."""
 
 import pickle
@@ -6,7 +5,6 @@ import numpy as np
 from keras.utils import Sequence
 
 
-# pylint: disable=invalid-name,R1710
 class DataGenerator(Sequence):
     """Generates data for the neural network."""
 

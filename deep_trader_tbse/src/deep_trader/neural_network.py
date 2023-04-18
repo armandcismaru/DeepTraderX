@@ -1,4 +1,3 @@
-# pylint: disable=invalid-name,E0401
 """
 Module containing the base class for neural networks.
 """
@@ -7,15 +6,15 @@ import os
 import csv
 import numpy as np
 from keras.models import model_from_json
-from utils import MAX_VALUES, MIN_VALUES, read_data
+from .utils import MAX_VALUES, MIN_VALUES, read_data
 
 
-# pylint: disable=invalid-name,no-member
 class NeuralNetwork:
     """Base class for neural networks."""
 
     def __init__(self):
-        pass
+        self.filename = None
+        self.model = None
 
     def save(self):
         """Save the model to disk."""
@@ -43,19 +42,6 @@ class NeuralNetwork:
             writer.writerow(MIN_VALUES)
 
         print("Saved model to disk.")
-
-    @staticmethod
-    def test(model, X, y, verbose):
-        """Test the model."""
-
-        n_features = 13
-        normalized_output = model.predict(X, verbose=verbose)
-
-        yhat = (
-            (normalized_output) * (MAX_VALUES[n_features] - MIN_VALUES[n_features])
-        ) + MIN_VALUES[n_features]
-
-        print(y, yhat)
 
     @staticmethod
     def load_network(filename):
@@ -97,16 +83,29 @@ class NeuralNetwork:
         return max_vals, min_vals
 
     @staticmethod
+    def test(model, x, y, verbose):
+        """Test the model."""
+
+        n_features = 13
+        normalized_output = model.predict(x, verbose=verbose)
+
+        yhat = (
+            (normalized_output) * (MAX_VALUES[n_features] - MIN_VALUES[n_features])
+        ) + MIN_VALUES[n_features]
+
+        print(y, yhat)
+
+    @staticmethod
     def test_models(no_files):
         """Test the models."""
 
         n_features = 13
-        X, y = read_data(no_files)
-        max_values, min_values = NeuralNetwork.normalization_values("DeepTrader2_1")
+        x, y = read_data(no_files)
+        max_values, min_values = NeuralNetwork.normalization_values("DeepTrader2_2")
 
-        model = NeuralNetwork.load_network("DeepTrader2_1")
-        for i in range(X.shape[0]):
-            normalized_input = (X[i] - min_values[:n_features]) / (
+        model = NeuralNetwork.load_network("DeepTrader2_2")
+        for i in range(x.shape[0]):
+            normalized_input = (x[i] - min_values[:n_features]) / (
                 max_values[:n_features] - min_values[:n_features]
             )
             normalized_input = np.reshape(normalized_input, (1, 1, -1))
@@ -115,3 +114,6 @@ class NeuralNetwork:
 
 if __name__ == "__main__":
     NeuralNetwork.test_models(30)
+    # import visualkeras
+    # model_to_see = NeuralNetwork.load_network("DeepTrader2_2")
+    # visualkeras.layered_view(model_to_see, to_file='output.png', legend=True) # write to disk

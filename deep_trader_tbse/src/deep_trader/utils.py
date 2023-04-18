@@ -1,4 +1,4 @@
-# pylint: disable=invalid-name,too-many-locals,broad-except
+# pylint: disable=too-many-locals,broad-except
 """
 Utiliy to pickle the data from csv files to a single file.
 """
@@ -61,7 +61,7 @@ def pickle_files(pkl_path, no_files):
         filename = f"trial{(i+1):07d}.csv"
         file_list = []
         try:
-            progressBar(i + 1, no_files, suffix="Pickle files")
+            progress_bar(i + 1, no_files, suffix="Pickle files")
             with open(filename, "r", encoding="utf-8") as file:
                 f_data = csv.reader(file)
                 if sum(1 for _ in file) < 2:
@@ -75,15 +75,15 @@ def pickle_files(pkl_path, no_files):
             print(e)
 
 
-def progressBar(count_value, total, suffix="Pickle files"):
+def progress_bar(count_value, total, suffix="Pickle files"):
     """
     Progress bar to show the progress of the pickle files.
     """
 
     bar_length = 100
-    filled_up_Length = int(round(bar_length * count_value / float(total)))
+    filled_up_length = int(round(bar_length * count_value / float(total)))
     percentage = round(100.0 * count_value / float(total), 1)
-    loading_bar = "=" * filled_up_Length + "-" * (bar_length - filled_up_Length)
+    loading_bar = "=" * filled_up_length + "-" * (bar_length - filled_up_length)
 
     sys.stdout.write(f"[{loading_bar}] {percentage}% ...{suffix}\r")
     sys.stdout.flush()
@@ -99,7 +99,7 @@ def pickle_s3_files(pkl_path):
 
     # Initialize the S3 client
 
-    # pylint: disable=line-too-long
+    # pylint: disable=line-too-long, invalid-name
     s3 = boto3.client(
         "s3",
         aws_access_key_id="ASIAV4Y55ZUXLRWGBDMC",
@@ -131,22 +131,21 @@ def pickle_s3_files(pkl_path):
                     for row in f_data:
                         file_list.append(row)
                     count += 1
-                    progressBar(count, no_objects)
+                    progress_bar(count, no_objects)
                 with open(pkl_path, "ab") as fileobj:
                     pickle.dump(file_list, fileobj)
     except Exception as e:
         print(e)
 
 
-# pylint: disable=invalid-name
-def normalize_data(X, max_values=0, min_values=0, train=True):
+def normalize_data(x, max_values=0, min_values=0, train=True):
     """Normalize the data."""
 
     if train:
-        max_values = np.max(X)
-        min_values = np.min(X)
+        max_values = np.max(x)
+        min_values = np.min(x)
 
-    normalized = (X - min_values) / (max_values - min_values)
+    normalized = (x - min_values) / (max_values - min_values)
     return normalized
 
 
@@ -178,40 +177,40 @@ def normalize_train(data_path):
 def read_data(no_files):
     """Read the data from the csv file."""
 
-    X = np.empty((0, 13))
+    x = np.empty((0, 13))
     y = np.empty((0, 1))
     for i in range(no_files):
         filename = f"trial{(i+1):07d}.csv"
         try:
             data = pd.read_csv(filename)
-            X_file = data.iloc[:, :13].values
+            x_file = data.iloc[:, :13].values
             y_file = data.iloc[:, 13].values.reshape(-1, 1)
 
             # Append to the arrays
-            X = np.vstack((X, X_file))
+            x = np.vstack((x, x_file))
             y = np.vstack((y, y_file))
 
         except FileNotFoundError as e:
             print(e)
 
-    return X, y
+    return x, y
 
 
 def split_train_test_data(data, ratio):
     """Split the data into train and test data."""
 
-    A = np.array([])
-    B = np.array([])
+    a = np.array([])
+    b = np.array([])
 
     split_index = int(ratio[0] / (ratio[0] + ratio[1]) * len(data))
 
-    A = np.append(A, data[:split_index])
-    B = np.append(B, data[split_index:])
+    a = np.append(a, data[:split_index])
+    b = np.append(b, data[split_index:])
 
-    return A, B
+    return a, b
 
 
 if __name__ == "__main__":
-    train_data_path = "train_data.pkl"
-    pickle_s3_files(train_data_path)
-    normalize_train(train_data_path)
+    TRAIN_DATA_PATH = "train_data.pkl"
+    pickle_s3_files(TRAIN_DATA_PATH)
+    normalize_train(TRAIN_DATA_PATH)

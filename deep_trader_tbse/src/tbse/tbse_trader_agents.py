@@ -1,4 +1,4 @@
-# pylint: disable=too-many-lines,duplicate-code,E0401
+# pylint: disable=too-many-lines
 """Module containing all trader algos"""
 
 import math
@@ -147,11 +147,10 @@ class Trader:
         return None
 
 
-# pylint: disable=invalid-name,too-many-instance-attributes,no-member
+# pylint: disable=too-many-arguments,too-many-locals
 class DeepTrader(Trader):
     """Class for the DeepTrader."""
 
-    # pylint: disable=too-many-function-args,too-many-arguments
     def __init__(self, ttype, tid, balance, time, filename):
         """Initialize the trader."""
 
@@ -160,11 +159,13 @@ class DeepTrader(Trader):
         self.model = nn.load_network(self.filename)  # load the model
         self.n_features = 13  # number of features
         self.limit = None  # limit price
-        self.otype = None  # order type
         self.max_vals, self.min_vals = nn.normalization_values(self.filename)
+        self.max_v_features = self.max_vals[: self.n_features]
+        self.min_v_features = self.min_vals[: self.n_features]
+        self.max_v_target = self.max_vals[self.n_features]
+        self.min_v_target = self.min_vals[self.n_features]
 
-    # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-    def create_input(self, lob):
+    def create_input(self, lob, otype):
         """Create the input for the model."""
 
         time = lob["t"]
@@ -175,7 +176,7 @@ class DeepTrader(Trader):
         smiths_alpha = 0
         p_estimate = 0
         delta_t = 0
-        val = 1 if self.otype == "Ask" else 0
+        trade_type = 1 if otype == "Ask" else 0
 
         if len(tape) > 0:
             tape = reversed(tape)
@@ -207,7 +208,7 @@ class DeepTrader(Trader):
         market_conditions = np.array(
             [
                 time,
-                val,
+                trade_type,
                 self.limit,
                 mid_price,
                 micro_price,
@@ -221,129 +222,48 @@ class DeepTrader(Trader):
                 p_estimate,
             ]
         )
-
         return market_conditions
 
-    # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-    # def create_input(self, lob):
-    #     """Create the input for the model."""
-
-    #     time = lob["t"]
-    #     bids = lob["bids"]
-    #     asks = lob["asks"]
-    #     tape = lob["tape"]
-    #     val = 0
-
-    #     if self.otype == "Ask":
-    #         val = 1
-
-    #     mid_price = 0
-    #     micro_price = 0
-    #     imbalances = 0
-    #     spread = 0
-    #     delta_t = 0
-    #     p_estimate = 0
-    #     smiths_alpha = 0
-
-    #     if len(tape) != 0:
-    #         if len(tape) != 1:
-    #             tape = reversed(tape)
-    #         trades = list(filter(lambda d: d["type"] == "Trade", tape))
-    #         trade_prices = [t["price"] for t in trades]
-
-    #         if len(trades) != 0:
-    #             weights = [pow(0.9, t) for t in range(len(trades))]
-    #             p_estimate = np.average(trade_prices, weights=weights)
-    #             smiths_alpha = np.sqrt(
-    #                 np.sum(np.square(trade_prices - p_estimate) / len(trade_prices))
-    #             )
-
-    #             if time == trades[0]["t"]:
-    #                 trade_prices = trade_prices[1:]
-    #                 if len(trades) == 1:
-    #                     delta_t = trades[0]["t"] - 0
-    #                 else:
-    #                     delta_t = trades[0]["t"] - trades[1]["t"]
-    #     else:
-    #         delta_t = time
-
-    #     if bids["best"] is None:
-    #         x = 0
-    #     else:
-    #         x = bids["best"]
-
-    #     if asks["best"] is None:
-    #         y = 0
-    #     else:
-    #         y = asks["best"]
-
-    #     n_x = bids["n"]
-    #     n_y = asks["n"]
-    #     total = n_x + n_y
-
-    #     spread = abs(y - x)
-    #     mid_price = (x + y) / 2
-    #     if n_x + n_y != 0:
-    #         micro_price = ((n_x * y) + (n_y * x)) / (n_x + n_y)
-    #         imbalances = (n_x - n_y) / (n_x + n_y)
-
-    #     market_conditions = np.array(
-    #         [
-    #             time,
-    #             val,
-    #             self.limit,
-    #             mid_price,
-    #             micro_price,
-    #             imbalances,
-    #             spread,
-    #             x,
-    #             y,
-    #             delta_t,
-    #             total,
-    #             smiths_alpha,
-    #             p_estimate,
-    #         ]
-    #     )
-
-    #     return market_conditions
-
     def get_order(self, time, countdown, lob):
-        """Implementation of the getorder from Trader superclass in BSE."""
+        """Implementation of the get_order from Trader superclass in TBSE."""
 
         if len(self.orders) < 1:
             order = None
         else:
             coid = max(self.orders.keys())
-
-            self.otype = self.orders[coid].otype
             self.limit = self.orders[coid].price
 
-            x = self.create_input(lob)
-            normalized_input = (x - self.min_vals[: self.n_features]) / (
-                self.max_vals[: self.n_features] - self.min_vals[: self.n_features]
+            x = self.create_input(lob, otype=self.orders[coid].otype)
+            normalized_input = (x - self.min_v_features) / (
+                self.max_v_features - self.min_v_features
             )
 
             normalized_input = np.reshape(normalized_input, (1, 1, -1))
-            normalized_output = self.model.predict(normalized_input)[0][0]
+            normalized_output = self.model(normalized_input).numpy().item()
 
             denormalized_output = (
-                (normalized_output)
-                * (self.max_vals[self.n_features] - self.min_vals[self.n_features])
-            ) + self.min_vals[self.n_features]
+                (normalized_output) * (self.max_v_target - self.min_v_target)
+            ) + self.min_v_target
             model_price = int(round(denormalized_output, 0))
 
-            # print("Predicted price:", model_price, "Limit:", self.limit, "Type:", self.otype)
+            # print("Predicted price:", model_price, "Limit:", self.limit, "Type:", self.orders[coid].otype)
 
-            if self.otype == "Ask":
+            if self.orders[coid].otype == "Ask":
                 if model_price < self.limit:
-                    model_price = self.limit
+                    model_price = self.limit + 1
+                    best_ask = lob["asks"]["best"] or TBSE_SYS_MIN_PRICE
+                    if self.limit < best_ask - 1:
+                        model_price = best_ask - 1
             else:
                 if model_price > self.limit:
-                    model_price = self.limit
+                    model_price = self.limit - 1
+                    best_bid = lob["bids"]["best"] or TBSE_SYS_MAX_PRICE
+                    if self.limit > best_bid + 1:
+                        model_price = best_bid + 1
 
             order = Order(
                 self.tid,
-                self.otype,
+                self.orders[coid].otype,
                 model_price,
                 self.orders[coid].qty,
                 time,

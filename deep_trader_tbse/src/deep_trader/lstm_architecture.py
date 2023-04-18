@@ -1,4 +1,4 @@
-# pylint: disable=invalid-name,too-few-public-methods,E0401
+# pylint: disable=too-few-public-methods,E0401
 """
 Module containing the architecture class of the model.
 """
@@ -15,20 +15,17 @@ from data_generator import DataGenerator
 from utils import BATCHSIZE, NUMBER_OF_FEATURES, NUMBER_OF_STEPS
 
 
-class Multivariate_LSTM(NeuralNetwork):
+class MultivariateLSTM(NeuralNetwork):
     """
     Class for the LSTM model.
     """
 
-    # pylint: disable=invalid-name,too-many-instance-attributes
+    # pylint: disable=too-many-instance-attributes
     def __init__(self, input_shape, filename):
-        """
-        Define the model
-        """
+        """Define the model."""
 
-        super().__init__()
+        NeuralNetwork.__init__(filename, model=Sequential())
         self.input_shape = input_shape
-        self.model = Sequential()
         self.steps = input_shape[1]
         self.n_features = self.input_shape[2]
         self.filename = filename
@@ -75,22 +72,12 @@ class Multivariate_LSTM(NeuralNetwork):
         plt.legend(["Train"], loc="upper left")
         plt.savefig("loss_curve.png")
 
-        # tf.keras.utils.plot_model(
-        #     self.model,
-        #     to_file="model.png",
-        #     show_shapes=False,
-        #     show_layer_names=True,
-        #     rankdir="TB",
-        #     expand_nested=False,
-        #     dpi=96,
-        # )
-
 
 if __name__ == "__main__":
     np.set_printoptions(threshold=sys.maxsize)
 
     # Multivariate LSTM
-    mv = Multivariate_LSTM(
+    mv = MultivariateLSTM(
         (BATCHSIZE, NUMBER_OF_STEPS, NUMBER_OF_FEATURES), "DeepTrader2_2"
     )
     mv.create_model()

@@ -164,7 +164,7 @@ def populate_market(trader_spec, traders, shuffle, verbose):
         if robot_type == "GDX":
             return TraderGdx("GDX", name, 0.00, 0)
         if robot_type == "DTR":
-            return DeepTrader("DTR", name, 0.00, 0, "DeepTrader2_1")
+            return DeepTrader("DTR", name, 0.00, 0, "DeepTrader2_2")
         sys.exit(f"FATAL: don't know robot type {robot_type}\n")
 
     def shuffle_traders(ttype_char, n, trader_list):
@@ -333,7 +333,8 @@ def run_trader(
     :return: Returns 0 at the end of the market session
     """
     start_event.wait()
-
+    # dtr_quoted_prices = []
+    # aa_quoted_prices = []
     while start_event.is_set():
         time.sleep(0.01)
         virtual_time = (time.time() - start_time) * (virtual_end / sess_length)
@@ -356,6 +357,11 @@ def run_trader(
         trader.respond(virtual_time, lob, trade, respond_verbose)
         time2 = time.time()
         order = trader.get_order(virtual_time, time_left, lob)
+        # if order is not None and trader.ttype == "DTR":
+        #     dtr_quoted_prices.append(order.price)
+        # if order is not None and trader.ttype == "AA":
+        #     aa_quoted_prices.append(order.price)
+
         time3 = time.time()
         trader.times[1] += time2 - time1
         trader.times[3] += 1
@@ -369,6 +375,11 @@ def run_trader(
             trader.times[0] += time3 - time2
             trader.times[2] += 1
 
+    # if dtr_quoted_prices:
+    #     print(dtr_quoted_prices)
+    # if aa_quoted_prices:
+    #     print()
+    
     return 0
 
 
@@ -411,10 +422,10 @@ def market_session(
     respond_verbose = False
     bookkeep_verbose = False
 
-    if dump_data:
-        lobframes = open(sess_id + "_LOB_frames.csv", "w", encoding="utf-8")
-    else:
-        lobframes = None
+    # if dump_data:
+    #     lobframes = open(sess_id + "_LOB_frames.csv", "w", encoding="utf-8")
+    # else:
+    lobframes = None
 
     # create a bunch of traders
     traders = {}
@@ -809,7 +820,7 @@ if __name__ == "__main__":
                 print("WARNING: Too many traders can cause unstable behaviour.")
 
             trial = 1
-            dump_all = False
+            dump_all = True
 
             while trial < (src.config.numTrials + 1):
                 trial_id = f"trial{str(trial).zfill(7)}"
