@@ -1,4 +1,4 @@
-# pylint: disable=C0103,C0413,E0401
+# pylint: disable=C0103,C0413,E0401,C0302
 """-*- coding: utf-8 -*-
 
 TBSE: The Threaded Bristol Stock Exchange
@@ -379,7 +379,7 @@ def run_trader(
     #     print(dtr_quoted_prices)
     # if aa_quoted_prices:
     #     print()
-    
+
     return 0
 
 
