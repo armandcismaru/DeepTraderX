@@ -8,7 +8,6 @@ RUN pip install pylint
 RUN pip install boto3
 RUN pip install keras
 RUN pip install tensorflow
-RUN pip install progress
 
 COPY . /app
 

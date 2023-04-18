@@ -55,6 +55,7 @@ import threading
 import time
 from pathlib import Path
 from datetime import datetime
+from random import randint
 import boto3
 import src.config
 
@@ -549,7 +550,7 @@ def market_session(
     if len_threads == len(traders) + 2:
         trade_stats(sess_id, traders, tdump)
 
-    print(f"Session {sess_id} complete")
+    # print(f"Session {sess_id} complete")
     if lob_out:
         data_file.close()
         s3.upload_file(
@@ -918,6 +919,7 @@ if __name__ == "__main__":
                 continue
 
             file_name = (
+                f"{randint(10, 99999)}-"
                 f"{str(NUM_ZIC).zfill(2)}-{str(NUM_ZIP).zfill(2)}-{str(NUM_GDX).zfill(2)}-"
                 f"{str(NUM_AA).zfill(2)}-{str(NUM_GVWY).zfill(2)}-{str(NUM_SHVR).zfill(2)}-{str(NUM_DTR).zfill(2)}.csv"
             )
@@ -926,9 +928,9 @@ if __name__ == "__main__":
             try:
                 s3 = boto3.client(
                     "s3",
-                    aws_access_key_id="ASIAV4Y55ZUXIL7BTUF5",
-                    aws_secret_access_key="XVnsxKdQQQVwd0WIk8BaKVE/zUs91mXLrI8M/hwY",
-                    aws_session_token="FwoGZXIvYXdzEMf//////////wEaDAhGdBQVWphj0NBCdCLGAT4wIEuRgQGkRfyv8dSFBJzLvyTZFSPCqQ/8X/9FGBVrCwxyRLK7scvAtOsccfsvPGBurLSlaXBGRoLDw5RgXLf9NlNrH3Cf1l7AfVHmzRRUKV2a2+53ZEvCx7AgZpPH28HBtMxe0XVmPt83DHPUCpJMIvzdN6ELwM7Ak7cYuons6sPe2oznzaw+YGFLfwojHiMpO9LRYc9s8WdJOYBCzn+gqSuKyh8YxAOM/3/YHiHFhKb4KS2JeoRA7rMq1w3LFQ6h9flxnSjvu5uhBjItMLr6/6+7T4qzn1fYnYUn3U6hf6U0GKKa9Nzs/bgY/5Qy0EnIn+rD6QFJpU3q",
+                    aws_access_key_id="ASIAV4Y55ZUXJ4DVFYAD",
+                    aws_secret_access_key="weoX3uhnpXJRGTaA/MmcfQD/PLLbMIhcpHfsC7Bd",
+                    aws_session_token="FwoGZXIvYXdzEHUaDFDlKsyCdAaZhMQH1CLGARUv8mLCvtmPpOxKyxX9OJkVs+XKiZZJzk24kbujlyL+h5nTBmkdn94uhqJLFGiSwSorobBP3J7CnBhHML77DlDPBeK1yfOF/Eu6dqWTqp2YuT5nwp7sNBrU7gLISzJWoVBZB0b6A5pdSMOaT19OTXUJJockL/83PNMqS/P3gkqdZdMSiqFspun1qvAScyLbz3BbqkW5Rjb+WjZ+DCSQS1uCuSfIj4p3gmiLU5eHqTmEmorUp3iDLi5vOPX2oPnQ741eR9Oy9yihgfqhBjItlLPWaMmgVxanpbERrFYGMv2l5bC2KfzqRzJiDusENQNLtlw27PzYQn4dE2QQ",
                 )
             except Exception as e:  # pylint: disable=broad-except
                 print(e)
@@ -977,6 +979,7 @@ if __name__ == "__main__":
                                 tdump,
                                 dump_all,
                                 no_of_schedule,
+                                lob_out=False,
                             )
 
                             if NUM_THREADS != trader_count + 2:
@@ -990,10 +993,16 @@ if __name__ == "__main__":
                             trial_number = trial_number - 1
                             start_session_event.clear()
                             time.sleep(0.5)
+
                         tdump.flush()
                         trial = trial + 1
                         trial_number = trial_number + 1
-            os.remove(file_name)
+
+                    s3.upload_file(
+                        f"{file_name}", "experiment-data-fz19792", f"{file_name}"
+                    )
+                    print(f"Uploading {file_name} to s3...")
+            # os.remove(file_name)
 
         sys.exit("Done Now")
 
