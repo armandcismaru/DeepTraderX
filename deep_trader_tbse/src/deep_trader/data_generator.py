@@ -5,6 +5,7 @@ import numpy as np
 from keras.utils import Sequence
 
 
+# pylint: disable=inconsistent-return-statements
 class DataGenerator(Sequence):
     """Generates data for the neural network."""
 
