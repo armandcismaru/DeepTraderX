@@ -11,26 +11,6 @@ spec:
     spec:
       containers:
       - name: market-simulations
-        image: armandcismaru/deeptrader:deeptrader-tbse
-        # env:
-        # - name: AWS_ACCESS_KEY_ID
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: aws-credentials
-        #       key: aws_access_key_id
-        # - name: AWS_SECRET_ACCESS_KEY
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: aws-credentials
-        #       key: aws_secret_access_key
-        # - name: AWS_SESSION_TOKEN
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: aws-credentials
-        #       key: aws_session_token
+        image: armandcismaru/deeptrader:deeptrader2.5
       restartPolicy: Never
-      # volumes:
-      # - name: aws-creds
-      #   secret:
-      #     secretName: aws-creds
   backoffLimit: 9
