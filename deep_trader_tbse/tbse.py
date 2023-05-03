@@ -928,9 +928,9 @@ if __name__ == "__main__":
             try:
                 s3 = boto3.client(
                     "s3",
-                    aws_access_key_id="ASIAV4Y55ZUXN4TOS2IK",
-                    aws_secret_access_key="CUjxai29DK3gDlKgmC5qpVL5ZmrnT+ElciZmXCgo",
-                    aws_session_token="FwoGZXIvYXdzEIr//////////wEaDBLKYurl8KM+Of8MFSLGAbp66VuUcOPyB/wr7mvbhoZyhXSzUeWg6PDpbR+IN2ATMuI01xlOm3l8WWDZpWNOYQPe0ZFYBFoE8CSpGbgebJdVb7X6DUm7D4qCCSnW32SIH1ziTWtd26sxAH6kQGcSrbgZ1cplS7ys3vk7rb2Mcey6gpTW6N6LflDE7wsK9YQltHXgfierK2MwuzH1nqhUavBaAN2bMi4+WmPKYGAbp58VWxP5GfyIEGIHXqtITc5LcDGCbs+/UgU1F9pRRkunIGDK+nPCFyj30f6hBjItZMXYJzjukK+Ufvv/X5zF647g8s6hc8xQtPiMc/vd/PpN6ZtQZ/81vyd9BzZd",
+                    aws_access_key_id="AWS_ACCESS_KEY_ID",
+                    aws_secret_access_key="AWS_SECRET_ACCESS_KEY",
+                    aws_session_token="AWS_SESSION_TOKEN",
                 )
             except Exception as e:  # pylint: disable=broad-except
                 print(e)
