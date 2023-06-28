@@ -79,11 +79,13 @@ Market sessions ran in TBSE can be configured by editing ```config.py```. It sho
 The comments within the config file should be enough for a user to understand how to configure TBSE, any missing information should be found in the [BSE Guide](https://github.com/davecliff/BristolStockExchange/blob/master/BSEguide1.2e.pdf "BSE Guide") which describes things like the different stepmodes and timemodes available. 
 To run the simulation, run the following command in the root directory of the project:
 
-```python deep_trader_tbse/tbse.py```
+```console
+$ python deep_trader_tbse/tbse.py
+```
 
 The results of the simulation will be stored in a file of the form ```00-05-00-00-00-00-05.csv``` in the ```deep_trader_tbse``` directory. The first 7 numbers in the filename are the trader schedule used in the market session. Each line in the file will contain the following information:
 
-```console
+```
 trial_id, time, trader1_type, total_profit, number_of_traders1, profit_per_trader2, trader2_type, total_profit, number_of_traders2, profit_per_trader2, best_bid, best_ask
 ```
 
