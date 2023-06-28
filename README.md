@@ -89,7 +89,7 @@ The results of the simulation will be stored in a file of the form ```00-05-00-0
 trial_id, time, trader1_type, total_profit, number_of_traders1, profit_per_trader2, trader2_type, total_profit, number_of_traders2, profit_per_trader2, best_bid, best_ask
 ```
 
-## Instructions for deploying on cloud clusters
+### Instructions for deploying on cloud clusters
 
 This project was designed to be run on Kubernetes cloud clusters. The following instructions are for deploying the project on the [AWS EKS](https://aws.amazon.com/eks/ "AWS EKS") cloud cluster. The project can be deployed on other cloud clusters, but the instructions will be different. The instructions assume the existence of an AWS account and a Kubernetes cluster on AWS EKS. The instructions also assume that the user has the [AWS CLI](https://aws.amazon.com/cli/ "AWS CLI") installed and configured with their AWS account credentials.
 
