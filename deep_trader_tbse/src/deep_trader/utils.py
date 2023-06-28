@@ -100,6 +100,7 @@ def pickle_s3_files(pkl_path):
     # Initialize the S3 client
 
     # pylint: disable=line-too-long, invalid-name
+    # Bad practice, needs to be changed. The keys below are expired.
     s3 = boto3.client(
         "s3",
         aws_access_key_id="ASIAV4Y55ZUXLRWGBDMC",
