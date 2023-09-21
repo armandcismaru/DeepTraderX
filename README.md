@@ -1,5 +1,4 @@
 # DeepTraderX (DTX) running in the Threaded-BSE
-## Exploring the performance of AI traders in (more) realistic simulations.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)
