@@ -1,4 +1,4 @@
-# DeepTrader on the Threaded-BSE (TBSE) - Exploring the performance of AI traders in (more) realistic simulations.
+# DeepTraderX (DTX) running in the Threaded-BSE - Exploring the performance of AI traders in (more) realistic simulations.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)
@@ -7,7 +7,7 @@
 
 This repository was created as part of my final individual project for the MEng Computer Science 4th year dissertation. It aims to explore the dynamics of a high performing, Deep Learning based trader, trained solely on data derived from the observation of Level-2 data from the Limit Order Book (LOB) of a simulated financial exchange. The project is using the [Threaded Bristol Stock Exchange (TBSE)](https://github.com/MichaelRol/Threaded-Bristol-Stock-Exchange) which was built with the purpose of replicating the asynchronous and parallel nature of real life markets, being a multithreaded extension of the [Bristol Stock Exchange (BSE)](https://github.com/davecliff/BristolStockExchange), created by Dave Cliff.
 
-The results of my research indicate positive results of DeepTrader versus the other, well established, public-domain literature. In some cases the profits are overwhelmingly higher. All the details can be found in my [thesis](fz19792_meng_dissertation.pdf). The hope is to turn this into a peer-reviewed published paper. Feel free to message me if you want to use this work and need any details. Please star this repository if you find its contents useful.
+The results of my research indicate positive results of DeepTraderX (DTX) versus the other, well established, public-domain literature. In some cases the profits are overwhelmingly higher. All the details can be found in my [thesis](fz19792_meng_dissertation.pdf). The hope is to turn this into a peer-reviewed published paper. Feel free to message me if you want to use this work and need any details. Please star this repository if you find its contents useful.
 
 ## Running instructions
 
@@ -19,10 +19,10 @@ The project is written in Python 3.4 or above, so make sure you have that instal
 $ pip install -r requirements.txt
 ```
 
-The project is made up of 2 main components: the market simulation, TBSE and the trading agent, DeepTrader.
+The project is made up of 2 main components: the market simulation, TBSE and the trading agent, DTX.
 The ```deep_trader``` directory in ```src``` contains the code used to train the Neural Network model. The trained models are stored in the ```models``` directory. The ```tbse``` directory in ```src``` contains the code used to run the simulation.
 
-DeepTrader (DTR) can be tested against the other trading strategies by runnning TBSE, which can be done in three different ways. These are the three different ways to enter the trader schedule. The trader schedule is the number of each type of trader present in the market session. It should be noted that in TBSE the buyer schedule is always equal to the seller schedule, i.e. there are the same number of buyers of each type as there are sellers. So if your schedule is 5 DTR and 5 AA, that means you will have 5 DTR buyers, 5 AA buyers, 5 DTR sellers and 5 AA sellers for a total of 20 traders. There are 7 traders available in TBSE, these are ZIC, ZIP, GDX, AA, Giveaway, Shaver and our AI agent, DTR. The three ways to specify this schedule are:
+DTX can be tested against the other trading strategies by runnning TBSE, which can be done in three different ways. These are the three different ways to enter the trader schedule. The trader schedule is the number of each type of trader present in the market session. It should be noted that in TBSE the buyer schedule is always equal to the seller schedule, i.e. there are the same number of buyers of each type as there are sellers. So if your schedule is 5 DTR and 5 AA, that means you will have 5 DTR buyers, 5 AA buyers, 5 DTR sellers and 5 AA sellers for a total of 20 traders. There are 7 traders available in TBSE, these are ZIC, ZIP, GDX, AA, Giveaway, Shaver and our AI agent, DTR. The three ways to specify this schedule are:
 
 #### - From the config file:
 
@@ -34,13 +34,13 @@ By entering no command-line arguments TBSE will use the order schedule as it exi
 #### - From the command-line:
 
 ```console
-$ python3 tbse.py [zic],[zip],[gdx],[aa],[gvwy],[shvr],[dtr]
+$ python3 tbse.py [zic],[zip],[gdx],[aa],[gvwy],[shvr],[dtx]
 ```
 Where each trader name is replaced with the number of that trader you want in the market schedule. For example:
 ```console
 $ python3 tbse.py 0,0,0,5,0,0,5
 ```
-will produce a trader schedule with 5 AA buyers, 5 AA sellers, 5 DTR buyers and 5 DTR sellers. You must enter a number for each of the 7 trader types, so put 0 if you do not want a certain trader present in your market session.
+will produce a trader schedule with 5 AA buyers, 5 AA sellers, 5 DTX buyers and 5 DTX sellers. You must enter a number for each of the 7 trader types, so put 0 if you do not want a certain trader present in your market session.
 
 #### - From a CSV file:
 
@@ -48,7 +48,7 @@ will produce a trader schedule with 5 AA buyers, 5 AA sellers, 5 DTR buyers and 
 $ python3 tbse.py markets.csv
 ```
 
-Using a CSV file is the most versatile way to use TBSE as it allows multiple market sessions to be defined using different trader schedules. The file ```markets.csv``` is provided. TBSE will run each row of the CSV file as a separate market session. Each row must contain 7 comma-separated numbers in the order ZIC, ZIP, GDX, AA, Giveaway, Shaver, DTR so 0 should be used if you don't wish a trader to be present in a market session. The following example CSV file will run experiments comparing 5 vs 5 of every possible pair of traders:
+Using a CSV file is the most versatile way to use TBSE as it allows multiple market sessions to be defined using different trader schedules. The file ```markets.csv``` is provided. TBSE will run each row of the CSV file as a separate market session. Each row must contain 7 comma-separated numbers in the order ZIC, ZIP, GDX, AA, Giveaway, Shaver, DTX so 0 should be used if you don't wish a trader to be present in a market session. The following example CSV file will run experiments comparing 5 vs 5 of every possible pair of traders:
 
 ```
 5, 5, 0, 0, 0, 0, 0
