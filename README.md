@@ -7,7 +7,11 @@
 
 This repository was created as part of my final individual project for the MEng Computer Science 4th year dissertation. It aims to explore the dynamics of a high performing, Deep Learning based trader, trained solely on data derived from the observation of Level-2 data from the Limit Order Book (LOB) of a simulated financial exchange. The project is using the [Threaded Bristol Stock Exchange (TBSE)](https://github.com/MichaelRol/Threaded-Bristol-Stock-Exchange) which was built with the purpose of replicating the asynchronous and parallel nature of real life markets, being a multithreaded extension of the [Bristol Stock Exchange (BSE)](https://github.com/davecliff/BristolStockExchange), created by Dave Cliff.
 
-The results of my research indicate positive results of DeepTraderX (DTX) versus the other, well established, public-domain literature. In some cases the profits are overwhelmingly higher. All the details can be found in my [thesis](fz19792_meng_dissertation.pdf). The hope is to turn this into a peer-reviewed published paper. Feel free to message me if you want to use this work and need any details. Please star this repository if you find its contents useful.
+The results of my research indicate positive results of DeepTraderX (DTX) versus the other, well established, public-domain literature. In some cases the profits are overwhelmingly higher. All the details can be found in my [thesis](fz19792_meng_dissertation.pdf). 
+
+This work is the base of [Cismaru, A. (2024). DeepTraderX: Challenging Conventional Trading Strategies with Deep Learning in Multi-Threaded Market Simulations.](cismaru2024.pdf), due to be published in the proceedings of ICAART 2024 in Rome, Italy. 
+
+Feel free to message me if you want to use this work and need any details. Please star this repository if you find its contents useful.
 
 ## Running instructions
 
