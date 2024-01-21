@@ -553,10 +553,10 @@ def market_session(
     # print(f"Session {sess_id} complete")
     if lob_out:
         data_file.close()
-        s3.upload_file(
-            f"{lob_file_name}.csv", "output-data-fz19792", f"{lob_file_name}.csv"
-        )
-        print(f"uploading to s3 for {sess_id}...")
+        # s3.upload_file(
+        #     f"{lob_file_name}.csv", "output-data-fz19792", f"{lob_file_name}.csv"
+        # )
+        # print(f"uploading to s3 for {sess_id}...")
         os.remove(lob_file_name + ".csv")
 
     return len_threads
