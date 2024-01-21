@@ -9,7 +9,7 @@ This repository was created as part of my final individual project for the MEng 
 
 The results of my research indicate positive results of DeepTraderX (DTX) versus the other, well established, public-domain literature. In some cases the profits are overwhelmingly higher. All the details can be found in my [thesis](fz19792_meng_dissertation.pdf). 
 
-This work is the base of [Cismaru, A. (2024). DeepTraderX: Challenging Conventional Trading Strategies with Deep Learning in Multi-Threaded Market Simulations.](cismaru2024.pdf), due to be published in the proceedings of [ICAART 2024](https://icaart.scitevents.org) in Rome, Italy. 
+This work is the base of [Cismaru, A. (2024). DeepTraderX: Challenging Conventional Trading Strategies with Deep Learning in Multi-Threaded Market Simulations.](cismaru2024.pdf), due to be presented at and published in the proceedings of [ICAART 2024](https://icaart.scitevents.org) in Rome, Italy. 
 
 Feel free to message me if you want to use this work and need any details. Please star this repository if you find its contents useful.
 
