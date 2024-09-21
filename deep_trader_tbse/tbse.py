@@ -548,7 +548,7 @@ def market_session(
 
     # write trade_stats for this experiment NB end-of-session summary only
     if len_threads == len(traders) + 2:
-        trade_stats(sess_id, traders, tdump)
+        trade_stats(sess_id, traders, dumpfile)
 
     # print(f"Session {sess_id} complete")
     if lob_out:
