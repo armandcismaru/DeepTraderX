@@ -10,7 +10,7 @@ from .tbse_msg_classes import Order
 from .tbse_sys_consts import TBSE_SYS_MAX_PRICE, TBSE_SYS_MIN_PRICE
 
 
-# pylint: disable=too-many-arguments,too-many-locals,too-many-statements
+# pylint: disable=too-many-arguments,too-many-locals,too-many-statements,too-many-positional-arguments
 def customer_orders(time, coid, traders, trader_stats, order_sched, pending, verbose):
     """
     Produce and distribute customer orders to traders

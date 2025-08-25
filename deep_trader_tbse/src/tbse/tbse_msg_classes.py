@@ -10,6 +10,7 @@ class Order:
     an Order/quote has a trader id, a type (buy/sell) price, quantity, timestamp, and unique i.d.
     """
 
+    # pylint: disable=too-many-positional-arguments
     def __init__(self, tid, otype, price, qty, time, coid, toid):
         self.tid = tid  # trader i.d.
         self.otype = otype  # order type

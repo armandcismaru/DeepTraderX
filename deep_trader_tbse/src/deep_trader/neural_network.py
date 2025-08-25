@@ -22,10 +22,8 @@ class NeuralNetwork:
         # create new directory if not already there
         path = "./Models/" + self.filename + "/"
         file = path + self.filename
-        try:
-            os.system("mkdir " + path)
-        except FileExistsError:
-            pass
+        # ensure directory exists without shelling out
+        os.makedirs(path, exist_ok=True)
 
         # serialize model to JSON
         model_json = self.model.to_json()

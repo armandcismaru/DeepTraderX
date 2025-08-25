@@ -1,8 +1,9 @@
-""""
+""" "
 Module containing classes for describing a simulated exchange
 
 Minor adaptions from the original BSE code by Dave Cliff
 """
+
 import sys
 import numpy as np
 from .tbse_sys_consts import TBSE_SYS_MIN_PRICE, TBSE_SYS_MAX_PRICE
@@ -397,6 +398,7 @@ class Exchange(Orderbook):
                 )
             )
 
+    # pylint: disable=too-many-positional-arguments
     def trade_stats(self, expid, traders, dumpfile, time, lob):
         """
         This function is used to write the trade stats to a file.

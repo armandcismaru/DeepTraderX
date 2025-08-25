@@ -147,7 +147,7 @@ class Trader:
         return None
 
 
-# pylint: disable=too-many-arguments,too-many-locals
+# pylint: disable=too-many-arguments,too-many-locals,too-many-positional-arguments
 class DeepTrader(Trader):
     """Class for the DeepTrader."""
 

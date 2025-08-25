@@ -24,6 +24,13 @@ The project is written in Python 3.4 or above, so make sure you have that instal
 $ pip install -r requirements.txt
 ```
 
+Optionally create and activate a virtual environment first:
+
+```console
+$ python3 -m venv .venv
+$ source .venv/bin/activate
+```
+
 The project is made up of 2 main components: the market simulation, TBSE and the trading agent, DTX.
 The ```deep_trader``` directory in ```src``` contains the code used to train the Neural Network model. The trained models are stored in the ```models``` directory. The ```tbse``` directory in ```src``` contains the code used to run the simulation.
 
@@ -134,6 +141,20 @@ $ kubectl get pods
 ```
 
 This way the simulation can be spread over multiple pods and run in parallel. In reality, the parallelism comes from running multiple instances of the same code when we need a lot of market simulations. Our job was configured for 9 pods but it can be configured for more or less depending on the user's needs.
+
+### Environment configuration
+
+This project now uses the default AWS SDK credential provider chain and environment variables. Copy `.env.example` to `.env` and set values as needed (or configure your AWS CLI profile/instance role):
+
+```console
+$ cp .env.example .env
+$ # edit .env
+```
+
+- `AWS_S3_INPUT_BUCKET`: bucket where CSVs are read from for pickling (used by `src/deep_trader/utils.py`).
+- `AWS_S3_OUTPUT_BUCKET`: bucket where TBSE experiment outputs are uploaded (used by `deep_trader_tbse/tbse.py`).
+
+Note: Do not hard-code AWS credentials in the source; use environment variables, AWS profiles, or instance roles.
 
 ## License
 The code is open-sourced via the [MIT](http://opensource.org/licenses/mit-license.php) Licence: see the LICENSE file for full text. 
