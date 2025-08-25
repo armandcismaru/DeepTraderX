@@ -56,7 +56,7 @@ import time
 from pathlib import Path
 from datetime import datetime
 from random import randint
-import boto3
+# import boto3
 import src.config
 
 myDir = os.getcwd()
