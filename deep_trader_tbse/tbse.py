@@ -225,7 +225,7 @@ def populate_market(trader_spec, traders, shuffle, verbose):
     return {"n_buyers": n_buyers, "n_sellers": n_sellers}
 
 
-# pylint: disable=too-many-arguments,too-many-locals,too-many-branches
+# pylint: disable=too-many-arguments,too-many-locals,too-many-branches,too-many-positional-arguments
 def run_exchange(
     sess_id,
     traders,
@@ -306,7 +306,7 @@ def run_exchange(
     return 0
 
 
-# pylint: disable=too-many-arguments,too-many-locals
+# pylint: disable=too-many-arguments,too-many-locals,too-many-positional-arguments
 def run_trader(
     trader,
     exchange,
@@ -385,7 +385,7 @@ def run_trader(
 
 
 # one session in the market
-# pylint: disable=too-many-arguments,too-many-locals,consider-using-with,too-many-statements
+# pylint: disable=too-many-arguments,too-many-locals,consider-using-with,too-many-statements,too-many-positional-arguments
 def market_session(
     sess_id,
     sess_length,
@@ -924,16 +924,11 @@ if __name__ == "__main__":
                 f"{str(NUM_AA).zfill(2)}-{str(NUM_GVWY).zfill(2)}-{str(NUM_SHVR).zfill(2)}-{str(NUM_DTR).zfill(2)}.csv"
             )
 
-            # pylint: disable=line-too-long
-            try:
-                s3 = boto3.client(
-                    "s3",
-                    aws_access_key_id="AWS_ACCESS_KEY_ID",
-                    aws_secret_access_key="AWS_SECRET_ACCESS_KEY",
-                    aws_session_token="AWS_SESSION_TOKEN",
-                )
-            except Exception as e:  # pylint: disable=broad-except
-                print(e)
+            # use default AWS credentials/provider chain
+            # try:
+            #     s3 = boto3.client("s3")
+            # except Exception as e:  # pylint: disable=broad-except
+            #     print(e)
 
             with open(file_name, "w", encoding="utf-8") as tdump:
                 for _ in range(0, src.config.numSchedulesPerRatio):
@@ -998,10 +993,11 @@ if __name__ == "__main__":
                         trial = trial + 1
                         trial_number = trial_number + 1
 
-                    s3.upload_file(
-                        f"{file_name}", "experiment-data-fz19792", f"{file_name}"
-                    )
-                    print(f"Uploading {file_name} to s3...")
+                    # s3_output_bucket = os.getenv(
+                    #     "AWS_S3_OUTPUT_BUCKET", "experiment-data-fz19792"
+                    # )
+                    # s3.upload_file(f"{file_name}", s3_output_bucket, f"{file_name}")
+                    # print(f"Uploading {file_name} to s3...")
             # os.remove(file_name)
 
         sys.exit("Done Now")

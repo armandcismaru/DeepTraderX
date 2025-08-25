@@ -1,8 +1,9 @@
 """TBSE Config File"""
+
 # pylint: skip-file
 
 # General
-sessionLength = 60  # Length of session in seconds.
+sessionLength = 1  # Length of session in seconds.
 virtualSessionLength = 60 * 60  # Number of virtual timesteps per sessionLength.
 verbose = False  # Adds additional output for debugging.
 

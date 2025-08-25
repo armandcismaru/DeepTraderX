@@ -11,7 +11,7 @@ class DataGenerator(Sequence):
 
     def __init__(self, dataset_path, batch_size, n_features):
         """Initialization."""
-
+        super().__init__()
         self.no_items = 0
         self.dataset_path = dataset_path
         with open(self.dataset_path, "rb") as f:
@@ -38,27 +38,28 @@ class DataGenerator(Sequence):
         y = np.empty((self.batch_size, 1))
 
         with open(self.dataset_path, "rb") as f:
-            count, number, i = 0, 0, 0
+            count, i = 0, 0
             while 1:
                 try:
-                    number = len(pickle.load(f)) + count
-                    if number < indexes[0]:
-                        count = number
-                        break
-                    if len(pickle.load(f)) == 0:
-                        break
+                    chunk = pickle.load(f)
+                    if not chunk:
+                        continue
+                    chunk_len = len(chunk)
+                    # Skip chunks entirely before the first index
+                    if count + chunk_len <= indexes[0]:
+                        count += chunk_len
+                        continue
 
-                    file = np.array(pickle.load(f))
+                    file = np.array(chunk)
                     for item in file:
-                        item = item.astype(np.float)
+                        item = item.astype(np.float64)
                         if count in indexes:
                             x[i,] = np.reshape(item[: self.n_features], (1, -1))
                             y[i,] = np.reshape(item[self.n_features], (1, 1))
+                            i += 1
+                            if i >= self.batch_size:
+                                return (x, y)
                         count += 1
-                        i += 1
-                        if i > self.batch_size - 1:
-                            i = 0
-                            return (x, y)
 
                 except EOFError as e:
                     print(e)

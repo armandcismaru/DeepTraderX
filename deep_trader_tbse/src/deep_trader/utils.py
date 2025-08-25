@@ -95,18 +95,12 @@ def pickle_s3_files(pkl_path):
     """
 
     # Set the S3 bucket and prefix
-    bucket_name = "output-data-fz19792"
+    bucket_name = os.getenv("AWS_S3_INPUT_BUCKET", "output-data-fz19792")
 
     # Initialize the S3 client
 
-    # pylint: disable=line-too-long, invalid-name
-    # Bad practice, needs to be changed. The keys below are expired.
-    s3 = boto3.client(
-        "s3",
-        aws_access_key_id="ASIAV4Y55ZUXLRWGBDMC",
-        aws_secret_access_key="XfFuMqJd/2N8Waq15TcPr+Oi6GqU3NQLd0PDGgVA",
-        aws_session_token="FwoGZXIvYXdzECcaDEZrIeKmyAKMxDImLCLGAYxboLs1W2bfD5W3F1rqiSfwJHZtrM2wCpOd29NPmpOfuBEnmBX7P3bGVr6zKPv5UtNufuov+adpVnVUB2bFEXfLUhAastq5mRAzJxu4MlHjh3XPNJeD+1cIMDN0bJKGUJz3Cs5ATzlFBQIkqExfnJTfKmZ+LCeHEfN1eL76nPsycm8xAuapKK1HKD3JjNgNcnVu5wbHulApZpotf0R186fyrhGAlf/Em5SrCkTmnFFLp/wjxw1TfZz5eAwebhj8ckScrQNcuCjp0bChBjItH++mW1ynFCbXWObDbgRAXTp2SiwT084bHd3F+DKOk2o5gskqQcE1sJ5SdpEY",
-    )
+    # use default AWS credentials/provider chain
+    s3 = boto3.client("s3")
 
     # Get the list of objects
     paginator = s3.get_paginator("list_objects_v2")
@@ -154,7 +148,9 @@ def normalize_train(data_path):
     """Normalize the data in the train_data.pkl file."""
 
     pkl_path = "normalized_data.pkl"
-    os.system("touch " + pkl_path)
+    # create file if missing using context manager
+    with open(pkl_path, "ab"):
+        pass
     with open(data_path, "rb") as f:
         while 1:
             try:

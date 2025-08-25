@@ -1,8 +1,13 @@
-numpy>=1.24.0
+numpy==1.23.5
 pandas>=1.5.3
 matplotlib>=3.4.3
-keras>=2.12.0
-tensorflow>=2.11.0
+keras==2.12.0
+# Apple Silicon (macOS arm64)
+tensorflow-macos==2.12.0; platform_system == "Darwin" and platform_machine == "arm64"
+tensorflow-metal==0.8.0; platform_system == "Darwin" and platform_machine == "arm64"
+
+# Other platforms (Linux/Windows/Intel mac)
+tensorflow==2.12.0; platform_system != "Darwin" or platform_machine != "arm64"
 boto3>=1.26.117
 pylint==3.3.8
 black==25.1.0
