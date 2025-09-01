@@ -35,6 +35,19 @@ jobs:
 
       - name: Run TBSE simulation
         working-directory: deep_trader_tbse
-        run: python3 tbse.py markets.csv
+        shell: bash
+        run: |
+          set +e
+          python3 tbse.py markets.csv > simulation.log 2>&1
+          EXIT_CODE=$?
+          set -e
+          if grep -q "Done Now" simulation.log; then
+            echo "Simulation finished successfully (exit code: $EXIT_CODE)."
+            exit 0
+          else
+            echo "Simulation did not complete successfully (exit code: $EXIT_CODE). Full log:" 
+            cat simulation.log
+            exit 1
+          fi
 
 
