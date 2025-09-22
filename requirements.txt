@@ -1,7 +1,7 @@
 numpy==1.25.2
 pandas>=1.5.3
 matplotlib>=3.4.3
-keras==2.15.0
+keras==3.10.0
 # Apple Silicon (macOS arm64)
 tensorflow-macos==2.16.2; platform_system == "Darwin" and platform_machine == "arm64"
 tensorflow-metal==1.2.0; platform_system == "Darwin" and platform_machine == "arm64"
