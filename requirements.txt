@@ -10,5 +10,5 @@ tensorflow-metal==1.2.0; platform_system == "Darwin" and platform_machine == "ar
 tensorflow==2.15.0; platform_system != "Darwin" or platform_machine != "arm64"
 boto3>=1.26.117
 pylint==4.0.2
-black==25.9.0
+black==25.11.0
 seaborn>=0.12.2
