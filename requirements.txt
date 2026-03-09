@@ -7,7 +7,7 @@ tensorflow-macos==2.16.2; platform_system == "Darwin" and platform_machine == "a
 tensorflow-metal==1.2.0; platform_system == "Darwin" and platform_machine == "arm64"
 
 # Other platforms (Linux/Windows/Intel mac)
-tensorflow==2.15.0; platform_system != "Darwin" or platform_machine != "arm64"
+tensorflow==2.21.0; platform_system != "Darwin" or platform_machine != "arm64"
 boto3>=1.26.117
 pylint==4.0.4
 black==26.3.0
