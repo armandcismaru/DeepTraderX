@@ -1,6 +1,6 @@
 numpy==1.26.4
 pandas>=1.5.3
-matplotlib>=3.4.3
+matplotlib>=3.10.9
 keras==2.15.0
 # Apple Silicon (macOS arm64)
 tensorflow-macos==2.16.2; platform_system == "Darwin" and platform_machine == "arm64"
