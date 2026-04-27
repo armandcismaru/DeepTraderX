@@ -1,5 +1,5 @@
 numpy==1.26.4
-pandas>=1.5.3
+pandas>=3.0.2
 matplotlib>=3.10.9
 keras==2.15.0
 # Apple Silicon (macOS arm64)
