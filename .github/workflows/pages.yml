@@ -6,6 +6,12 @@ on:
     paths:
       - 'docs/**'
       - '.github/workflows/pages.yml'
+  # Build (but do not deploy) on PRs so docs changes are validated before merge.
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -13,10 +19,9 @@ permissions:
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run
-# in-progress and latest queued. Do not cancel in-progress runs.
+# Serialize runs per ref; never cancel an in-progress deploy.
 concurrency:
-  group: 'pages'
+  group: pages-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -41,9 +46,10 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         # Defaults to uploading ./_site produced by the Jekyll build above.
 
-  # Deploy the built site to GitHub Pages.
+  # Deploy the built site to GitHub Pages — only from main (never on PRs).
   deploy:
     needs: build
+    if: github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
