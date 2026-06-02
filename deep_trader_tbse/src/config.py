@@ -161,9 +161,9 @@ def parse_config():
     if stepmode not in ["fixed", "jittered", "random"]:
         print("CONFIG ERROR: stepmode must be 'fixed', 'jittered' or 'random'.")
         valid = False
-    if timemode not in ["periodic", "drip-fixed", "drip-jittered", "drip-poisson"]:
+    if timemode not in ["periodic", "drip-fixed", "drip-jitter", "drip-poisson"]:
         print(
-            "CONFIG ERROR: timemode must be 'periodic', 'drip-fixed', 'drip-jittered' or 'drip-poisson'."
+            "CONFIG ERROR: timemode must be 'periodic', 'drip-fixed', 'drip-jitter' or 'drip-poisson'."
         )
         valid = False
     if interval <= 0:

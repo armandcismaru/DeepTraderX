@@ -10,9 +10,9 @@ from keras.optimizers import Adam
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.models import Sequential
-from neural_network import NeuralNetwork
-from data_generator import DataGenerator
-from utils import BATCHSIZE, NUMBER_OF_FEATURES, NUMBER_OF_STEPS
+from .neural_network import NeuralNetwork
+from .data_generator import DataGenerator
+from .utils import BATCHSIZE, NUMBER_OF_FEATURES, NUMBER_OF_STEPS
 
 
 class MultivariateLSTM(NeuralNetwork):
@@ -24,7 +24,8 @@ class MultivariateLSTM(NeuralNetwork):
     def __init__(self, input_shape, filename):
         """Define the model."""
 
-        NeuralNetwork.__init__(filename, model=Sequential())
+        NeuralNetwork.__init__(self)
+        self.model = Sequential()
         self.input_shape = input_shape
         self.steps = input_shape[1]
         self.n_features = self.input_shape[2]

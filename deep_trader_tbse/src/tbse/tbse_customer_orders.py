@@ -116,7 +116,8 @@ def customer_orders(time, coid, traders, trader_stats, order_sched, pending, ver
         p_min = sys_min_check(offset_min + min(schedule[0][0], schedule[0][1]))
         p_max = sys_max_check(offset_max + max(schedule[0][0], schedule[0][1]))
         p_range = p_max - p_min
-        step_size = p_range / (n - 1)
+        # guard against a single trader on this side (n == 1 -> divide by zero)
+        step_size = p_range / (n - 1) if n > 1 else 0
         half_step = round(step_size / 2.0)
 
         if stepmode == "fixed":
