@@ -65,5 +65,8 @@ class DataGenerator(Sequence):
                     print(e)
                     break  # no more data in the file
 
+        # reached EOF before the batch was filled: return what was gathered
+        return (x[:i], y[:i])
+
     def __len__(self):
         return self.no_items // self.batch_size

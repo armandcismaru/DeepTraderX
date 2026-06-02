@@ -112,7 +112,7 @@ class Trader:
                 + " "
                 + str(order.coid)
                 + " "
-                + str(self.orders[0].coid)
+                + str(coid)
             )
             sys.exit()
 
@@ -374,7 +374,8 @@ class TraderShaver(Trader):
             else:
                 if lob["asks"]["n"] > 0:
                     quote_price = lob["asks"]["best"] - 1
-                    quote_price = min(quote_price, limit_price)
+                    # seller: limit price is a floor, never quote below cost
+                    quote_price = max(quote_price, limit_price)
                 else:
                     quote_price = lob["asks"]["worst"]
             order = Order(
@@ -423,7 +424,8 @@ class TraderSniper(Trader):
             else:
                 if lob["asks"]["n"] > 0:
                     quote_price = lob["asks"]["best"] - shave
-                    quote_price = min(quote_price, limit_price)
+                    # seller: limit price is a floor, never quote below cost
+                    quote_price = max(quote_price, limit_price)
                 else:
                     quote_price = lob["asks"]["worst"]
             order = Order(

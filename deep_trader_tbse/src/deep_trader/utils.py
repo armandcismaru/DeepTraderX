@@ -59,16 +59,13 @@ def pickle_files(pkl_path, no_files):
     # retrieving data from multiple files
     for i in range(no_files):
         filename = f"trial{(i+1):07d}.csv"
-        file_list = []
         try:
             progress_bar(i + 1, no_files, suffix="Pickle files")
             with open(filename, "r", encoding="utf-8") as file:
-                f_data = csv.reader(file)
-                if sum(1 for _ in file) < 2:
-                    continue
-                for row in f_data:
-                    file_list.append(row)
-
+                file_list = list(csv.reader(file))
+            # skip files that don't have at least two rows of data
+            if len(file_list) < 2:
+                continue
             with open(pkl_path, "ab") as fileobj:
                 pickle.dump(file_list, fileobj)
         except FileNotFoundError as e:
