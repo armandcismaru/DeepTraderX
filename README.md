@@ -6,6 +6,11 @@
 [![CodeQL](https://github.com/armandcismaru/DeepTraderX/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/armandcismaru/DeepTraderX/actions/workflows/github-code-scanning/codeql)
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 
+> ### 📖 Documentation
+> **[Read the full documentation site →](https://armandcismaru.github.io/DeepTraderX/)**
+> Architecture · trading agents · the ML model · configuration · deployment.
+> (Source lives in [`docs/`](docs/); automated agents should start with [AGENTS.md](AGENTS.md).)
+
 This repository was created as part of my final individual project for the MEng Computer Science 4th year dissertation. It aims to explore the dynamics of a high performing, Deep Learning based trader, trained solely on data derived from the observation of Level-2 data from the Limit Order Book (LOB) of a simulated financial exchange. The project is using the [Threaded Bristol Stock Exchange (TBSE)](https://github.com/MichaelRol/Threaded-Bristol-Stock-Exchange) which was built with the purpose of replicating the asynchronous and parallel nature of real life markets, being a multithreaded extension of the [Bristol Stock Exchange (BSE)](https://github.com/davecliff/BristolStockExchange), created by Dave Cliff.
 
 The results of my research indicate positive results of DeepTraderX (DTX) versus the other, well established, public-domain literature. In some cases the profits are overwhelmingly higher. All the details can be found in my [thesis](fz19792_meng_dissertation.pdf). 

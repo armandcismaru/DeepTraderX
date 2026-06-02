@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if page.title %}{{ page.title }} · {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+  {% if page.description or site.description %}<meta name="description" content="{{ page.description | default: site.description }}">{% endif %}
+  <style>
+    :root {
+      --accent:#0969da; --bg:#ffffff; --side-bg:#f6f8fa; --border:#d0d7de;
+      --text:#1f2328; --muted:#656d76; --sidebar-w:280px;
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0; color:var(--text); background:var(--bg); line-height:1.6;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+      -webkit-font-smoothing:antialiased;
+    }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+
+    .layout { display:flex; align-items:flex-start; }
+
+    /* Permanent left sidebar / table of contents */
+    .sidebar {
+      position:sticky; top:0; height:100vh; width:var(--sidebar-w);
+      flex:0 0 var(--sidebar-w); overflow-y:auto;
+      background:var(--side-bg); border-right:1px solid var(--border); padding:24px 18px;
+    }
+    .sidebar .brand { font-weight:600; font-size:18px; color:var(--text); display:block; }
+    .sidebar .tagline { color:var(--muted); font-size:12.5px; margin:2px 0 18px; }
+    .sidebar nav ul { list-style:none; margin:0; padding:0; }
+    .sidebar nav li { margin:2px 0; }
+    .sidebar nav a {
+      display:block; padding:6px 10px; border-radius:6px; color:var(--text); font-size:14px;
+    }
+    .sidebar nav a:hover { background:#eaeef2; text-decoration:none; }
+    .sidebar nav a.active { background:var(--accent); color:#fff; font-weight:600; }
+    .sidebar .repo-link {
+      margin-top:20px; padding-top:14px; border-top:1px solid var(--border);
+      font-size:13px; color:var(--muted);
+    }
+
+    /* Content column */
+    .content { flex:1 1 auto; min-width:0; padding:40px 48px; max-width:880px; }
+    .content > :first-child { margin-top:0; }
+    .content h1, .content h2, .content h3, .content h4 { line-height:1.25; margin-top:1.5em; margin-bottom:.6em; }
+    .content h1 { padding-bottom:.3em; border-bottom:1px solid var(--border); }
+    .content h2 { padding-bottom:.3em; border-bottom:1px solid var(--border); }
+    .content table { border-collapse:collapse; margin:1em 0; display:block; width:max-content; max-width:100%; overflow-x:auto; }
+    .content th, .content td { border:1px solid var(--border); padding:6px 13px; }
+    .content th { background:var(--side-bg); }
+    .content tr:nth-child(2n) td { background:#f6f8fa; }
+    .content code {
+      background:rgba(175,184,193,.2); padding:.2em .4em; border-radius:6px; font-size:85%;
+      font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    }
+    .content pre {
+      background:var(--side-bg); border:1px solid var(--border); border-radius:6px;
+      padding:16px; overflow:auto; line-height:1.45;
+    }
+    .content pre code { background:none; padding:0; font-size:85%; }
+    .content blockquote { margin:1em 0; padding:0 1em; color:var(--muted); border-left:.25em solid var(--border); }
+    .content img { max-width:100%; }
+    .content hr { height:1px; border:0; background:var(--border); margin:1.6em 0; }
+
+    /* Stack the sidebar on top on narrow screens */
+    @media (max-width:800px) {
+      .layout { display:block; }
+      .sidebar { position:static; height:auto; width:auto; border-right:none; border-bottom:1px solid var(--border); }
+      .content { padding:24px 18px; max-width:none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <a class="brand" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+      <div class="tagline">Documentation &amp; reference</div>
+      <nav>
+        <ul>
+          {% for item in site.nav %}
+          <li>
+            <a href="{{ item.url | relative_url }}"{% if page.url == item.url %} class="active"{% endif %}>{{ item.title }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </nav>
+      <div class="repo-link">↗ <a href="https://github.com/armandcismaru/DeepTraderX">GitHub repository</a></div>
+    </aside>
+    <main class="content">
+      {{ content }}
+    </main>
+  </div>
+</body>
+</html>

@@ -6,13 +6,37 @@ description: >-
   Documentation for DeepTraderX (DTX/DTR) — a deep-learning trading agent
   competing inside the Threaded Bristol Stock Exchange (TBSE), a multi-threaded
   limit-order-book market simulator.
-theme: jekyll-theme-cayman
 
 # Project pages are served from https://<user>.github.io/<repo>/, so the site
-# must know its base path for theme assets and internal links to resolve.
+# must know its base path for internal links to resolve.
 # Update these if the repo is renamed or served from a custom domain.
 url: "https://armandcismaru.github.io"
 baseurl: "/DeepTraderX"
+
+# Presentation is handled by the custom two-column layout in
+# _layouts/default.html (permanent left-hand navigation sidebar). Force every
+# page to use it rather than relying on a gem theme.
+defaults:
+  - scope:
+      path: ""
+      type: pages
+    values:
+      layout: default
+
+# Left-sidebar navigation (rendered by _layouts/default.html). Order matters.
+nav:
+  - title: Overview
+    url: /
+  - title: Architecture
+    url: /architecture.html
+  - title: Trader Agents
+    url: /trader-agents.html
+  - title: Data & ML Model
+    url: /data-and-ml.html
+  - title: Configuration & Running
+    url: /configuration-and-running.html
+  - title: Deployment
+    url: /deployment.html
 
 # README.md is promoted to the site index by the jekyll-readme-index plugin
 # (bundled with GitHub Pages); .md links between docs are rewritten to .html by
