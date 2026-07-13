@@ -56,6 +56,7 @@ import time
 from pathlib import Path
 from datetime import datetime
 from random import randint
+
 # import boto3
 import src.config
 
@@ -280,9 +281,7 @@ def run_exchange(
             if order.otype == "Ask":
                 limits[1] = order.price
 
-        (trade, lob) = exchange.process_order2(
-            virtual_time, order, process_verbose, None
-        )
+        trade, lob = exchange.process_order2(virtual_time, order, process_verbose, None)
 
         if trade is not None:
             completed_coid[order.coid] = True

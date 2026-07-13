@@ -120,8 +120,7 @@ try:
     # )
 
     # Create the Kubernetes cluster using kops
-    os.system(
-        f"kops create cluster \
+    os.system(f"kops create cluster \
         --name deeptradercluster.k8s.local \
         --cloud aws \
         --zones {region}a,{region}b,{region}c \
@@ -132,8 +131,7 @@ try:
         --topology private \
         --networking calico \
         --out s3://output-data-fz19702 \
-        --yes"
-    )
+        --yes")
 
     print("Kubernetes cluster created")
 

@@ -2,6 +2,7 @@
 """
 Module containing code for production of customer orders
 """
+
 import random
 import sys
 
@@ -234,7 +235,7 @@ def customer_orders(time, coid, traders, trader_stats, order_sched, pending, ver
             True,
         )
         order_type = "Bid"
-        (sched, mode, sched_end) = get_sched_mode(time, order_sched["dem"])
+        sched, mode, sched_end = get_sched_mode(time, order_sched["dem"])
         for t in range(n_buyers):
             issue_time = time + issue_times[t]
             t_name = f"B{str(t).zfill(2)}"
@@ -254,7 +255,7 @@ def customer_orders(time, coid, traders, trader_stats, order_sched, pending, ver
             True,
         )
         order_type = "Ask"
-        (sched, mode, sched_end) = get_sched_mode(time, order_sched["sup"])
+        sched, mode, sched_end = get_sched_mode(time, order_sched["sup"])
         for t in range(n_sellers):
             issue_time = time + issue_times[t]
             t_name = f"S{str(t).zfill(2)}"
