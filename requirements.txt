@@ -1,6 +1,6 @@
 numpy==1.26.4
 pandas>=3.0.6
-matplotlib>=3.11.1
+matplotlib>=3.11.2
 keras==2.15.0
 # Apple Silicon (macOS arm64)
 tensorflow-macos==2.16.2; platform_system == "Darwin" and platform_machine == "arm64"
@@ -9,6 +9,6 @@ tensorflow-metal==1.2.0; platform_system == "Darwin" and platform_machine == "ar
 # Other platforms (Linux/Windows/Intel mac)
 tensorflow==2.15.0; platform_system != "Darwin" or platform_machine != "arm64"
 boto3>=1.43.36
-pylint==4.0.8
+pylint==4.0.9
 black==26.5.1
 seaborn>=0.13.2
